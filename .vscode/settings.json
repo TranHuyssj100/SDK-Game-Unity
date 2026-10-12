@@ -56,5 +56,8 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "SDK-Game-Unity.sln"
+    "dotnet.defaultSolution": "SDK-Game-Unity.sln",
+    "dotrush.roslyn.projectOrSolutionFiles": [
+        "d:\\Unity_Project\\SDK-Game-Unity\\SDK-Game-Unity.sln"
+    ]
 }

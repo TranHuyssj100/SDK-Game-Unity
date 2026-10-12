@@ -1,0 +1,23 @@
+{
+  "name": "com.highmood.observer",
+  "displayName": "HighMood Observer",
+  "version": "1.0.0",
+  "unity": "2022.3",
+  "description": "HighMood Observer is a package that allows you to observe the mood of the player.",
+  "keywords": [
+    "highmood",
+    "observer",
+    "mood",
+    "upm",
+    "package",
+    "sdk"
+  ],
+  "dependencies": {
+    "com.unity.inputsystem": "1.0.0"
+  },
+  "author": {
+    "name": "HighMood",
+    "email": "highmood@gmail.com",
+    "url": "https://highmood.com"
+  }
+}
