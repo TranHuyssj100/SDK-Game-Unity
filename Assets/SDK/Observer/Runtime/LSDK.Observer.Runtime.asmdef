@@ -1,5 +1,5 @@
 {
-    "name": "com.highmood.observer.Runtime",
+    "name": "LSDK.Observer.Runtime",
     "rootNamespace": "",
     "references": [],
     "includePlatforms": [],
