@@ -1,12 +1,8 @@
 {
-    "name": "LSDK.GameData.Editor",
-    "rootNamespace": "LSDK.GameData.EditorTools",
-    "references": [
-        "com.LSDK.Gamedata.Runtime"
-    ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "name": "LSDK.Gamedata.Runtime",
+    "rootNamespace": "",
+    "references": [],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
