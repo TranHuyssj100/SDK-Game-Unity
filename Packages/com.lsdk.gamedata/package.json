@@ -1,0 +1,20 @@
+{
+    "name": "com.lsdk.gamedata",
+    "displayName": "LSDK GameData",
+    "version": "1.0.0",
+    "unity": "2022.3",
+    "description": "LSDK GameData is a package that allows you to manage the game data.",
+    "keywords": [
+      "LSDK",
+      "GameData",
+      "upm",
+      "package",
+      "sdk",
+      "gamedata"
+    ],
+    "author": {
+      "name": "LSDK",
+      "email": "lsdk@gmail.com",
+      "url": "https://lsdk.com"
+    }
+  }

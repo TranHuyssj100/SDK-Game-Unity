@@ -17,6 +17,12 @@
         "com.unity.inputsystem": "1.0.0"
       }
     },
+    "com.lsdk.gamedata": {
+      "version": "file:com.lsdk.gamedata",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.unity.2d.animation": {
       "version": "10.2.3",
       "depth": 1,

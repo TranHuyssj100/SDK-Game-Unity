@@ -1,6 +1,6 @@
 {
-    "name": "LSDK.GameData",
-    "rootNamespace": "LSDK.GameData",
+    "name": "com.LSDK.Gamedata.Runtime",
+    "rootNamespace": "",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
