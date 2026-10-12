@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 
-namespace Highmood.Sdk.Core
+namespace LSDK.Core
 {
     public class Observer
     {

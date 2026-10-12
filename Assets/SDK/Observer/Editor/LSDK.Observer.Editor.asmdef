@@ -1,5 +1,5 @@
 {
-    "name": "com.highmood.observer.Editor",
+    "name": "LSDK.Observer.Editor",
     "rootNamespace": "",
     "references": [
         "GUID:3f0d276f9f789a140a5754f917e65fe3"
