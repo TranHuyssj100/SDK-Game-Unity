@@ -1,20 +1,34 @@
 {
     "name": "com.lsdk.gamedata",
     "displayName": "LSDK GameData",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "unity": "2022.3",
     "description": "LSDK GameData is a package that allows you to manage the game data.",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/TranHuyssj100/SDK-Game-Unity.git",
+        "directory": "Assets/SDK/com.lsdk.gamedata"
+    },
+    "publishConfig": {
+        "registry": "https://npm.pkg.github.com/@tranhuyssj100"
+    },
+    "files": [
+        "Editor",
+        "Editor.meta",
+        "Runtime",
+        "Runtime.meta"
+    ],
     "keywords": [
-      "LSDK",
-      "GameData",
-      "upm",
-      "package",
-      "sdk",
-      "gamedata"
+        "LSDK",
+        "GameData",
+        "upm",
+        "package",
+        "sdk",
+        "gamedata"
     ],
     "author": {
-      "name": "LSDK",
-      "email": "lsdk@gmail.com",
-      "url": "https://lsdk.com"
+        "name": "LSDK",
+        "email": "lsdk@gmail.com",
+        "url": "https://lsdk.com"
     }
-  }
+}
