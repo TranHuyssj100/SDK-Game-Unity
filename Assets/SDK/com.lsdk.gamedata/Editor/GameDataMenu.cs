@@ -7,7 +7,7 @@ namespace LSDK.GameData.EditorTools
 {
     public static class GameDataMenu
     {
-        private const string Root = "Tools/SDK/GameData/";
+        private const string Root = "Tools/LSDK/GameData/";
 
         [MenuItem(Root + "Open Window", false, 0)]
         private static void OpenWindow()
