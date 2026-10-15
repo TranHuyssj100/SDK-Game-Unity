@@ -12,7 +12,7 @@ namespace LSDK.GameData
     {
         [SerializeField] private int version;
 
-        /// <summary>Key lưu trữ, lấy từ GameDataKeys.</summary>
+        /// <summary>Key lưu trữ. Module mẫu dùng GameDataKeys; module mới có thể trả về chuỗi riêng.</summary>
         public abstract string Key { get; }
 
         /// <summary>Version schema hiện tại của code. Tăng lên khi đổi cấu trúc data.</summary>

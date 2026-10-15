@@ -7,7 +7,7 @@
     "repository": {
         "type": "git",
         "url": "git+https://github.com/TranHuyssj100/SDK-Game-Unity.git",
-        "directory": "Assets/SDK/com.lsdk.gamedata"
+        "directory": "Assets/SDK/GameData"
     },
     "publishConfig": {
         "registry": "https://npm.pkg.github.com/@tranhuyssj100"
@@ -16,7 +16,15 @@
         "Editor",
         "Editor.meta",
         "Runtime",
-        "Runtime.meta"
+        "Runtime.meta",
+        "Samples~"
+    ],
+    "samples": [
+        {
+            "displayName": "Default Modules",
+            "description": "Player, Currency, Inventory, Settings, Gameplay. Import vào Assets để sửa. Mọi class kế thừa GameDataModule được tự đăng ký.",
+            "path": "Samples~/DefaultModules"
+        }
     ],
     "keywords": [
         "LSDK",

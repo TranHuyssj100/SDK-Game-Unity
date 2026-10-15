@@ -1,6 +1,6 @@
 namespace LSDK.GameData
 {
-    /// <summary>Tập trung toàn bộ key PlayerPrefs. Mỗi module 1 key.</summary>
+    /// <summary>Key có sẵn cho module mẫu. Module mới trong Assets trả về chuỗi riêng, không cần sửa file này.</summary>
     public static class GameDataKeys
     {
         public const string Prefix = "SDK_GameData_";
