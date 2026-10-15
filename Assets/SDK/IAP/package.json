@@ -1,0 +1,31 @@
+{
+    "name": "com.lsdk.iap",
+    "displayName": "LSDK IAP",
+    "version": "1.0.0",
+    "unity": "2022.3",
+    "description": "LSDK IAP manager: Singleton + Coroutine, tach adapter khoi Unity IAP v5, luu state qua LSDK GameData.",
+    "dependencies": {
+        "com.unity.purchasing": "5.4.3",
+        "com.unity.services.core": "1.12.5"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/TranHuyssj100/SDK-Game-Unity.git",
+        "directory": "Assets/SDK/IAP"
+    },
+    "publishConfig": {
+        "registry": "https://npm.pkg.github.com/@tranhuyssj100"
+    },
+    "files": [
+        "Editor",
+        "Editor.meta",
+        "Runtime",
+        "Runtime.meta"
+    ],
+    "keywords": ["LSDK", "IAP", "upm", "package", "sdk"],
+    "author": {
+        "name": "LSDK",
+        "email": "lsdk@gmail.com",
+        "url": "https://lsdk.com"
+    }
+}
