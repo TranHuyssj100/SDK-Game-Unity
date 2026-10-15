@@ -1,21 +1,23 @@
+using LSDK.Core.Observer;
+using LSDK.GameData;
 using UnityEngine;
-using Highmood.Sdk.Core;
+using LSDK.IAP;
 
 public class TestSDK : MonoBehaviour
 {
+    void Start()
+    {
+        Observer.Publish(EventConstants.TEST_EVENT);
+        IAPManager.Instance.Init();
+    }
+
     public void OnEnable()
     {
         Observer.Subscribe(EventConstants.TEST_EVENT, OnTestEvent);
     }
-
-
     public void OnDisable()
     {
         Observer.Unsubscribe(EventConstants.TEST_EVENT, OnTestEvent);
-    }
-    void Start()
-    {
-        Observer.Publish(EventConstants.TEST_EVENT);
     }
 
     public void OnTestEvent()
