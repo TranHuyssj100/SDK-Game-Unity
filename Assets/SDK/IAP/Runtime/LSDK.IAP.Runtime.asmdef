@@ -3,7 +3,6 @@
     "rootNamespace": "LSDK.IAP",
     "references": [
         "LSDK.Gamedata.Runtime",
-        "LSDK.GameData.Modules",
         "UnityEngine.Purchasing",
         "Unity.Services.Core"
     ],

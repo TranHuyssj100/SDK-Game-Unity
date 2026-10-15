@@ -20,7 +20,9 @@ namespace LSDK.IAP
         public string googleId;   // SKU tren Google Play
         public string appleId;    // Product ID tren App Store
 
-        public IAPRewardType rewardType;
+        [Tooltip("Khoa qua tang game tu dinh nghia, vd: \"Coin\", \"Gem\", \"Gold\", \"RemoveAds\". " +
+                 "Dung hang so trong IAPRewardType (sample GameDataIntegration) hoac tu khai bao.")]
+        public string rewardKey;
         public int rewardAmount;
 
         public string GetStoreId()
@@ -32,13 +34,4 @@ namespace LSDK.IAP
 #endif
         }
     }
-}
-[Serializable]
-public enum IAPRewardType
-{
-    Coin,
-    Gem,
-    Item,
-    RemoveAds,
-    Other
 }

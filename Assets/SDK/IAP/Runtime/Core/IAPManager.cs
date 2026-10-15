@@ -3,6 +3,23 @@ using System.Collections;
 using LSDK.GameData;
 using UnityEngine;
 
+// NullRewardGranter duoc dung khi IAPManager.Init() khong truyen granter.
+// De cap qua that su, truyen GameDataRewardGranter (sample) hoac tu implement IRewardGranter.
+namespace LSDK.IAP
+{
+    internal sealed class NullRewardGranter : IRewardGranter
+    {
+        public void Grant(IAPProductDefinition product)
+        {
+            Debug.LogWarning(
+                $"[IAP] NullRewardGranter: san pham '{product.id}' (rewardKey='{product.rewardKey}') " +
+                "khong duoc cap qua. Goi IAPManager.Instance.Init(yourGranter) voi mot IRewardGranter hop le. " +
+                "Tham khao sample 'GameDataIntegration' de dung san co voi LSDK GameData."
+            );
+        }
+    }
+}
+
 namespace LSDK.IAP
 {
     /// <summary>
@@ -75,7 +92,7 @@ namespace LSDK.IAP
             // Dang ky module IAPData vao GameData (neu GameData da load thi load luon tu storage)
             _data = GameDataManager.Instance.Register<IAPData>();
 
-            _granter = granter ?? new GameDataRewardGranter();
+            _granter = granter ?? new NullRewardGranter();
             _store = store ?? CreateDefaultStore();
             _store.OnInitialized += HandleInitialized;
             _store.OnPurchaseSucceeded += HandleSuccess;
