@@ -13,17 +13,17 @@ MonoBehaviour:
   m_Name: IAPCatalog
   m_EditorClassIdentifier: LSDK.IAP.Runtime::LSDK.IAP.IAPProductCatalog
   products:
-  - type: 0
+  - type: 1
     id: 0
     googleId: 12
     appleId: 12
     rewardType: 0
-    rewardAmount: 100
+    rewardAmount: 12
   - type: 1
-    id: 12
-    googleId: 12
+    id: 1
+    googleId: 123
     appleId: 12
-    rewardType: 0
+    rewardType: 1
     rewardAmount: 100
   - type: 2
     id: 13
