@@ -27,12 +27,13 @@ namespace LSDK.GameData
                 if (_quitting) return null;
 
 #if UNITY_2023_1_OR_NEWER
-                _instance = FindFirstObjectByType<GameDataManager>();
+                var found = FindFirstObjectByType<GameDataManager>();
 #else
-                _instance = FindObjectOfType<GameDataManager>();
+                var found = FindObjectOfType<GameDataManager>();
 #endif
-                if (_instance == null)
-                    new GameObject("[GameDataManager]").AddComponent<GameDataManager>(); // Awake sẽ gán _instance
+                // Awake của component trên scene có thể chưa chạy (OnEnable của UI khác chạy trước)
+                if (found != null) found.Setup();
+                else CreateInstance();
 
                 return _instance;
             }
@@ -44,6 +45,18 @@ namespace LSDK.GameData
         {
             _instance = null;
             _quitting = false;
+        }
+
+        /// <summary>Tạo + đăng ký module trước khi scene đầu tiên load, để Awake/OnEnable của mọi script đều thấy data.</summary>
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void Bootstrap()
+        {
+            if (_instance == null) CreateInstance();
+        }
+
+        private static void CreateInstance()
+        {
+            new GameObject("[GameDataManager]").AddComponent<GameDataManager>(); // Awake sẽ gán _instance
         }
         #endregion
 
@@ -70,10 +83,20 @@ namespace LSDK.GameData
         {
             if (_instance != null && _instance != this)
             {
-                Destroy(gameObject);
+                // Bản đặt trên scene (vd Loading) đến sau bản Bootstrap: giữ lại cấu hình Inspector
+                _instance.saveDelay = saveDelay;
+
+                // Chỉ xóa cả GameObject khi nó không chứa component nào khác ngoài Transform
+                if (GetComponents<Component>().Length <= 2) Destroy(gameObject);
+                else Destroy(this);
                 return;
             }
 
+            Setup();
+        }
+
+        private void Setup()
+        {
             _instance = this;
             DontDestroyOnLoad(gameObject);
             Initialize();
