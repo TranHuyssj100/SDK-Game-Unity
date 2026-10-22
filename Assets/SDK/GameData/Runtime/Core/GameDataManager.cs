@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 namespace LSDK.GameData
@@ -26,12 +27,13 @@ namespace LSDK.GameData
                 if (_quitting) return null;
 
 #if UNITY_2023_1_OR_NEWER
-                _instance = FindFirstObjectByType<GameDataManager>();
+                var found = FindFirstObjectByType<GameDataManager>();
 #else
-                _instance = FindObjectOfType<GameDataManager>();
+                var found = FindObjectOfType<GameDataManager>();
 #endif
-                if (_instance == null)
-                    new GameObject("[GameDataManager]").AddComponent<GameDataManager>(); // Awake sẽ gán _instance
+                // Awake của component trên scene có thể chưa chạy (OnEnable của UI khác chạy trước)
+                if (found != null) found.Setup();
+                else CreateInstance();
 
                 return _instance;
             }
@@ -43,6 +45,18 @@ namespace LSDK.GameData
         {
             _instance = null;
             _quitting = false;
+        }
+
+        /// <summary>Tạo + đăng ký module trước khi scene đầu tiên load, để Awake/OnEnable của mọi script đều thấy data.</summary>
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void Bootstrap()
+        {
+            if (_instance == null) CreateInstance();
+        }
+
+        private static void CreateInstance()
+        {
+            new GameObject("[GameDataManager]").AddComponent<GameDataManager>(); // Awake sẽ gán _instance
         }
         #endregion
 
@@ -69,10 +83,20 @@ namespace LSDK.GameData
         {
             if (_instance != null && _instance != this)
             {
-                Destroy(gameObject);
+                // Bản đặt trên scene (vd Loading) đến sau bản Bootstrap: giữ lại cấu hình Inspector
+                _instance.saveDelay = saveDelay;
+
+                // Chỉ xóa cả GameObject khi nó không chứa component nào khác ngoài Transform
+                if (GetComponents<Component>().Length <= 2) Destroy(gameObject);
+                else Destroy(this);
                 return;
             }
 
+            Setup();
+        }
+
+        private void Setup()
+        {
             _instance = this;
             DontDestroyOnLoad(gameObject);
             Initialize();
@@ -102,18 +126,62 @@ namespace LSDK.GameData
             if (_storage == null) _storage = new PlayerPrefsStorage();
             if (_serializer == null) _serializer = new JsonDataSerializer();
 
-            RegisterModules();
+            RegisterDiscoveredModules();
             if (loadOnAwake) LoadAll();
         }
 
-        /// <summary>Thêm module mới của game ở đây.</summary>
-        private void RegisterModules()
+        /// <summary>
+        /// Tìm mọi class kế thừa GameDataModule ở các assembly tham chiếu Runtime.
+        /// Module trong Assets (sample đã import) được đăng ký mà không sửa file này.
+        /// </summary>
+        private void RegisterDiscoveredModules()
         {
-            Register<PlayerData>();
-            Register<CurrencyData>();
-            Register<InventoryData>();
-            Register<SettingsData>();
-            Register<GameplayData>();
+            var moduleType = typeof(GameDataModule);
+            var runtimeName = moduleType.Assembly.GetName().Name;
+            var found = new List<Type>();
+
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                if (assembly.IsDynamic || IsEditorAssembly(assembly.GetName().Name)) continue;
+                if (!ReferencesAssembly(assembly, runtimeName)) continue;
+
+                Type[] types;
+                try { types = assembly.GetTypes(); }
+                catch (ReflectionTypeLoadException ex) { types = ex.Types; }
+
+                if (types == null) continue;
+                for (int i = 0; i < types.Length; i++)
+                {
+                    var type = types[i];
+                    if (type == null || type.IsAbstract || !type.IsClass) continue;
+                    if (!moduleType.IsAssignableFrom(type)) continue;
+                    if (type.GetConstructor(Type.EmptyTypes) == null)
+                    {
+                        Debug.LogWarning($"[GameData] Bỏ qua {type.FullName}: cần constructor không tham số.");
+                        continue;
+                    }
+                    found.Add(type);
+                }
+            }
+
+            found.Sort((a, b) => string.CompareOrdinal(a.FullName, b.FullName));
+            for (int i = 0; i < found.Count; i++)
+                Register(found[i]);
+        }
+
+        private static bool ReferencesAssembly(Assembly assembly, string assemblyName)
+        {
+            if (assembly.GetName().Name == assemblyName) return true;
+            var refs = assembly.GetReferencedAssemblies();
+            for (int i = 0; i < refs.Length; i++)
+                if (refs[i].Name == assemblyName) return true;
+            return false;
+        }
+
+        private static bool IsEditorAssembly(string name)
+        {
+            return name.EndsWith(".Editor", StringComparison.Ordinal)
+                || name.EndsWith("-Editor", StringComparison.Ordinal);
         }
 
         /// <summary>Đổi backend (file, cloud...). Nếu đã load thì load lại từ backend mới.</summary>
@@ -128,10 +196,32 @@ namespace LSDK.GameData
         #region Module access
         public T Register<T>() where T : GameDataModule, new()
         {
-            var type = typeof(T);
-            if (_modules.TryGetValue(type, out var existing)) return (T)existing;
+            return (T)Register(typeof(T));
+        }
 
-            var module = new T();
+        public GameDataModule Register(Type type)
+        {
+            if (type == null || type.IsAbstract || !typeof(GameDataModule).IsAssignableFrom(type))
+            {
+                Debug.LogError("[GameData] Type không phải GameDataModule cụ thể.");
+                return null;
+            }
+
+            if (_modules.TryGetValue(type, out var existing)) return existing;
+
+            if (type.GetConstructor(Type.EmptyTypes) == null)
+            {
+                Debug.LogError($"[GameData] {type.Name} cần constructor không tham số.");
+                return null;
+            }
+
+            var module = (GameDataModule)Activator.CreateInstance(type);
+            for (int i = 0; i < _ordered.Count; i++)
+            {
+                if (_ordered[i].Key == module.Key)
+                    Debug.LogWarning($"[GameData] {type.Name} trùng key '{module.Key}' với {_ordered[i].GetType().Name}.");
+            }
+
             _modules.Add(type, module);
             _ordered.Add(module);
             module.Changed += HandleModuleChanged;

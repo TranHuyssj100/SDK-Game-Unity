@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 
@@ -156,12 +153,6 @@ namespace LSDK.GameData.EditorTools
                 if (GUILayout.Button("Refresh", EditorStyles.toolbarButton, GUILayout.Width(60f)))
                 {
                     Reload();
-                    GUIUtility.ExitGUI();
-                }
-
-                if (GUILayout.Button("Register", EditorStyles.toolbarButton, GUILayout.Width(70f)))
-                {
-                    GenerateRegisterCode();
                     GUIUtility.ExitGUI();
                 }
 
@@ -334,181 +325,6 @@ namespace LSDK.GameData.EditorTools
 
             LoadSelected();
             GUIUtility.ExitGUI();
-        }
-
-        private void GenerateRegisterCode()
-        {
-            if (EditorApplication.isPlayingOrWillChangePlaymode)
-            {
-                EditorUtility.DisplayDialog("Register", "Thoát Play mode trước khi sinh code đăng ký.", "OK");
-                return;
-            }
-
-            string assetPath = FindScriptPath(typeof(GameDataManager));
-            if (string.IsNullOrEmpty(assetPath))
-            {
-                EditorUtility.DisplayDialog("Register", "Không tìm thấy file GameDataManager.cs.", "OK");
-                return;
-            }
-
-            string fullPath = Path.GetFullPath(assetPath);
-            string source = File.ReadAllText(fullPath);
-            if (!TryGetMethodBody(source, "RegisterModules", out int bodyStart, out int bodyEnd, out string body))
-            {
-                EditorUtility.DisplayDialog("Register", "Không tìm thấy method RegisterModules().", "OK");
-                return;
-            }
-
-            var assembly = typeof(GameDataManager).Assembly;
-            var types = FindModuleTypes().Where(t => t.Assembly == assembly).ToList();
-            var registerLine = new Regex(@"^\s*Register<([^>]+)>\(\);\s*(?://.*)?$");
-
-            var existingNames = new List<string>();
-            var customLines = new List<string>();
-            foreach (string line in body.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None))
-            {
-                var match = registerLine.Match(line);
-                if (match.Success)
-                {
-                    existingNames.Add(match.Groups[1].Value.Trim());
-                    continue;
-                }
-
-                if (!string.IsNullOrWhiteSpace(line))
-                    customLines.Add(line);
-            }
-
-            var ordered = new List<Type>();
-            foreach (string name in existingNames)
-            {
-                var type = types.FirstOrDefault(t => MatchesRegisterName(t, name));
-                if (type != null && !ordered.Contains(type))
-                    ordered.Add(type);
-            }
-
-            foreach (var type in types)
-            {
-                if (!ordered.Contains(type))
-                    ordered.Add(type);
-            }
-
-            var added = ordered.Where(t => existingNames.All(name => !MatchesRegisterName(t, name))).Select(t => t.Name).ToList();
-            var removed = existingNames.Where(name => types.All(t => !MatchesRegisterName(t, name))).ToList();
-            if (added.Count == 0 && removed.Count == 0)
-            {
-                EditorUtility.DisplayDialog("Register", "Mọi module đã có trong RegisterModules().", "OK");
-                return;
-            }
-
-            string nl = source.Contains("\r\n") ? "\r\n" : "\n";
-            string indent = "            ";
-            var indentMatch = Regex.Match(body, @"(?m)^([ \t]+)Register<");
-            if (indentMatch.Success) indent = indentMatch.Groups[1].Value;
-
-            string closeIndent = "        ";
-            int lineStart = source.LastIndexOf('\n', bodyEnd - 1);
-            if (lineStart >= bodyStart)
-            {
-                string tail = source.Substring(lineStart + 1, bodyEnd - lineStart - 1);
-                if (tail.Trim().Length == 0) closeIndent = tail;
-            }
-
-            var generated = new List<string>();
-            var sb = new StringBuilder();
-            sb.Append(nl);
-            foreach (var type in ordered)
-            {
-                string line = indent + "Register<" + RegisterTypeName(type) + ">();";
-                generated.Add(line.Trim());
-                sb.Append(line).Append(nl);
-            }
-
-            foreach (string line in customLines)
-                sb.Append(line).Append(nl);
-            sb.Append(closeIndent);
-
-            var message = new StringBuilder();
-            message.AppendLine("Ghi vào GameDataManager.RegisterModules()?");
-            message.AppendLine();
-            foreach (string line in generated)
-                message.AppendLine(line);
-            if (added.Count > 0)
-            {
-                message.AppendLine();
-                message.AppendLine("Thêm: " + string.Join(", ", added));
-            }
-            if (removed.Count > 0)
-            {
-                message.AppendLine();
-                message.AppendLine("Gỡ: " + string.Join(", ", removed));
-            }
-
-            if (!EditorUtility.DisplayDialog("Register", message.ToString().TrimEnd(), "Ghi", "Hủy"))
-                return;
-
-            string updated = source.Substring(0, bodyStart) + sb + source.Substring(bodyEnd);
-            File.WriteAllText(fullPath, updated, new UTF8Encoding(false));
-            AssetDatabase.ImportAsset(assetPath);
-            Debug.Log("[GameData] Đã cập nhật RegisterModules:\n" + string.Join("\n", generated));
-        }
-
-        private static bool MatchesRegisterName(Type type, string name)
-        {
-            return name == type.Name
-                || name == type.FullName
-                || name == "global::" + type.FullName;
-        }
-
-        private static string RegisterTypeName(Type type)
-        {
-            if (type.Namespace == typeof(GameDataManager).Namespace)
-                return type.Name;
-            return "global::" + type.FullName.Replace('+', '.');
-        }
-
-        private static string FindScriptPath(Type type)
-        {
-            foreach (string guid in AssetDatabase.FindAssets(type.Name + " t:MonoScript"))
-            {
-                string path = AssetDatabase.GUIDToAssetPath(guid);
-                var script = AssetDatabase.LoadAssetAtPath<MonoScript>(path);
-                if (script != null && script.GetClass() == type)
-                    return path;
-            }
-
-            return null;
-        }
-
-        private static bool TryGetMethodBody(string source, string methodName, out int bodyStart, out int bodyEnd, out string body)
-        {
-            bodyStart = 0;
-            bodyEnd = 0;
-            body = null;
-
-            int signature = source.IndexOf("void " + methodName + "(", StringComparison.Ordinal);
-            if (signature < 0) return false;
-
-            int open = source.IndexOf('{', signature);
-            if (open < 0) return false;
-
-            int depth = 0;
-            for (int i = open; i < source.Length; i++)
-            {
-                if (source[i] == '{') depth++;
-                else if (source[i] == '}')
-                {
-                    depth--;
-                    if (depth == 0)
-                    {
-                        bodyStart = open + 1;
-                        bodyEnd = i;
-                        body = source.Substring(bodyStart, bodyEnd - bodyStart);
-                        return true;
-                    }
-                }
-            }
-
-            return false;
         }
         #endregion
     }

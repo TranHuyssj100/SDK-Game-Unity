@@ -1,0 +1,44 @@
+{
+    "name": "com.lsdk.iap",
+    "displayName": "LSDK IAP",
+    "version": "1.1.0",
+    "unity": "2022.3",
+    "description": "LSDK IAP manager: Singleton + Coroutine, tach adapter khoi Unity IAP v5, luu state qua LSDK GameData.",
+    "dependencies": {
+        "com.unity.purchasing": "5.4.3",
+        "com.unity.services.core": "1.12.5"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/TranHuyssj100/SDK-Game-Unity.git",
+        "directory": "Assets/SDK/IAP"
+    },
+    "publishConfig": {
+        "registry": "https://npm.pkg.github.com/@tranhuyssj100"
+    },
+    "files": [
+        "Editor",
+        "Editor.meta",
+        "Runtime",
+        "Runtime.meta",
+        "Samples~"
+    ],
+    "samples": [
+        {
+            "displayName": "GameData Integration",
+            "description": "GameDataRewardGranter + IAPRewardType hang so (Coin, Gem, ...). Can import DefaultModules cua LSDK GameData. Tu them hang so moi ma khong can sua package.",
+            "path": "Samples~/GameDataIntegration"
+        },
+        {
+            "displayName": "IAP Button",
+            "description": "Vi du UI Button don gian goi IAPManager.Purchase.",
+            "path": "Samples~/IAPButton"
+        }
+    ],
+    "keywords": ["LSDK", "IAP", "upm", "package", "sdk"],
+    "author": {
+        "name": "LSDK",
+        "email": "lsdk@gmail.com",
+        "url": "https://lsdk.com"
+    }
+}
