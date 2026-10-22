@@ -16,8 +16,9 @@ namespace LSDK.IAP
     public class UnityIAPAdapter : IStoreAdapter
     {
         public event Action<bool> OnInitialized;
-        public event Action<string, string> OnPurchaseSucceeded;
+        public event Action<IAPReceipt> OnPurchaseSucceeded;
         public event Action<string, IAPFailReason> OnPurchaseFailed;
+        public event Action<IAPReceipt> OnPurchaseRestored;
         public event Action<string, bool, long> OnEntitlementUpdated;
 
         StoreController _controller;
@@ -104,7 +105,43 @@ namespace LSDK.IAP
             if (string.IsNullOrEmpty(productId)) return;
 
             _pending[productId] = order;
-            OnPurchaseSucceeded?.Invoke(order.Info.TransactionID, productId);
+            OnPurchaseSucceeded?.Invoke(BuildReceipt(order, productId, false));
+        }
+
+        static IAPReceipt BuildReceipt(Order order, string productId, bool restored)
+        {
+            var info = order.Info;
+            var receipt = new IAPReceipt
+            {
+                productId = productId,
+                storeProductId = GetProduct(order.CartOrdered)?.definition?.storeSpecificId,
+                transactionId = info?.TransactionID,
+                unityReceipt = info?.Receipt,
+                packageName = Application.identifier,
+                restored = restored
+            };
+
+            if (info?.Google != null)
+            {
+                receipt.store = IAPStoreName.GooglePlay;
+                receipt.purchaseToken = info.Google.PurchaseToken;
+                receipt.orderId = info.Google.OrderId;
+            }
+            else if (info?.Apple != null)
+            {
+                receipt.store = IAPStoreName.AppleAppStore;
+                receipt.signedTransaction = info.Apple.jwsRepresentation;
+                receipt.originalTransactionId = info.Apple.OriginalTransactionID;
+            }
+            else
+            {
+                receipt.store = Application.platform == RuntimePlatform.Android ? IAPStoreName.GooglePlay
+                    : Application.platform == RuntimePlatform.IPhonePlayer ? IAPStoreName.AppleAppStore
+                    : IAPStoreName.Unknown;
+                if (receipt.store == IAPStoreName.GooglePlay)
+                    receipt.purchaseToken = info?.TransactionID;
+            }
+            return receipt;
         }
 
         void HandleFailed(FailedOrder order)
@@ -133,7 +170,7 @@ namespace LSDK.IAP
 
                 if (def.type == ProductType.NonConsumable)
                 {
-                    OnEntitlementUpdated?.Invoke(def.id, true, 0);
+                    OnPurchaseRestored?.Invoke(BuildReceipt(order, def.id, true));
                 }
                 else if (def.type == ProductType.Subscription)
                 {

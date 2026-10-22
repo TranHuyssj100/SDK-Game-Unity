@@ -9,15 +9,20 @@ namespace LSDK.IAP
         /// <summary>true = san sang ban hang.</summary>
         event Action<bool> OnInitialized;
 
-        /// <summary>(transactionId, productId) - store da xac nhan, dang cho confirm.</summary>
-        event Action<string, string> OnPurchaseSucceeded;
+        /// <summary>Store da xac nhan thanh toan, dang cho confirm. receipt.productId = ID noi bo.</summary>
+        event Action<IAPReceipt> OnPurchaseSucceeded;
 
         /// <summary>(productId, reason)</summary>
         event Action<string, IAPFailReason> OnPurchaseFailed;
 
         /// <summary>
-        /// (productId, active, expireUtcTicks) cho non-consumable / subscription da so huu tren store
-        /// nhung khong di qua OnPurchaseSucceeded (da confirm tu truoc, cai lai game, kiem tra han).
+        /// Non-consumable da confirm tu truoc (cai lai game, may moi), khong di qua OnPurchaseSucceeded.
+        /// Khong can confirm lai.
+        /// </summary>
+        event Action<IAPReceipt> OnPurchaseRestored;
+
+        /// <summary>
+        /// (productId, active, expireUtcTicks) trang thai subscription tu store (kiem tra han, don da confirm).
         /// expireUtcTicks = 0 neu khong biet han.
         /// </summary>
         event Action<string, bool, long> OnEntitlementUpdated;

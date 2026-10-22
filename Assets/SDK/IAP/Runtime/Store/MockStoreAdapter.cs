@@ -17,8 +17,12 @@ namespace LSDK.IAP
         public static TimeSpan SubscriptionDuration = TimeSpan.FromDays(30);
 
         public event Action<bool> OnInitialized;
-        public event Action<string, string> OnPurchaseSucceeded;
+        public event Action<IAPReceipt> OnPurchaseSucceeded;
         public event Action<string, IAPFailReason> OnPurchaseFailed;
+        // Mock khong co don non-consumable cu de khoi phuc.
+#pragma warning disable CS0067
+        public event Action<IAPReceipt> OnPurchaseRestored;
+#pragma warning restore CS0067
         public event Action<string, bool, long> OnEntitlementUpdated;
 
         static readonly Dictionary<string, long> ExpireUtcTicks = new Dictionary<string, long>();
@@ -81,7 +85,15 @@ namespace LSDK.IAP
                 case Behaviour.Success:
                     if (_types.TryGetValue(productId, out var type) && type == IAPProductType.Subscription)
                         ExpireUtcTicks[productId] = DateTime.UtcNow.Add(SubscriptionDuration).Ticks;
-                    OnPurchaseSucceeded?.Invoke(Guid.NewGuid().ToString(), productId);
+                    var transactionId = Guid.NewGuid().ToString();
+                    OnPurchaseSucceeded?.Invoke(new IAPReceipt
+                    {
+                        productId = productId,
+                        store = IAPStoreName.Mock,
+                        transactionId = transactionId,
+                        purchaseToken = transactionId,
+                        packageName = Application.identifier
+                    });
                     break;
                 case Behaviour.UserCancel:
                     OnPurchaseFailed?.Invoke(productId, IAPFailReason.UserCancelled);

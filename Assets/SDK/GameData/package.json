@@ -1,7 +1,7 @@
 {
     "name": "com.lsdk.gamedata",
     "displayName": "LSDK GameData",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "unity": "2022.3",
     "description": "LSDK GameData is a package that allows you to manage the game data.",
     "repository": {

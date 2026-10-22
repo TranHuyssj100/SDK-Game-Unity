@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using LSDK.GameData;
 using UnityEngine;
 
@@ -24,7 +25,7 @@ namespace LSDK.IAP
 {
     /// <summary>
     /// Entry point cua module IAP. Singleton + Coroutine, state luu qua LSDK GameData (IAPData).
-    /// Flow: Purchase -> store xac nhan -> Grant -> SaveAll -> Confirm.
+    /// Flow: Purchase -> store xac nhan -> Verify server (Product ID phai khop store) -> Grant -> SaveAll -> Confirm.
     /// </summary>
     [DisallowMultipleComponent]
     public class IAPManager : MonoBehaviour
@@ -41,7 +42,17 @@ namespace LSDK.IAP
         [SerializeField] private IAPProductCatalog catalog;
         [SerializeField] private bool useMockInEditor = true;
 
+        [Header("Server verify")]
+        [Tooltip("Endpoint POST IAPReceipt. Trong = khong verify (chi nen dung khi dev).")]
+        [SerializeField] private string validationUrl;
+        [SerializeField, Min(1)] private int validationTimeoutSeconds = 15;
+        [Tooltip("Bo qua verify cho don cua MockStoreAdapter (Editor).")]
+        [SerializeField] private bool skipValidationForMock = true;
+
         public bool IsReady { get; private set; }
+
+        /// <summary>ID tai khoan game, gui kem receipt de server gan don voi nguoi choi.</summary>
+        public string UserId { get; set; }
 
         /// <summary>Ban sau moi giao dich (thanh cong hoac that bai).</summary>
         public event Action<IAPResult> OnPurchaseCompleted;
@@ -52,7 +63,13 @@ namespace LSDK.IAP
 
         private IStoreAdapter _store;
         private IRewardGranter _granter;
+        private IReceiptValidator _validator;
         private IAPData _data;
+
+        // Transaction dang cho server tra loi: store co the ban lai cung don (FetchPurchases + mua).
+        private readonly HashSet<string> _validating = new HashSet<string>();
+        // Bi server tu choi trong session nay: khong goi lai server moi lan store ban lai.
+        private readonly HashSet<string> _rejected = new HashSet<string>();
 
         private Action<IAPResult> _pendingCallback;
         private string _pendingProductId;
@@ -76,10 +93,11 @@ namespace LSDK.IAP
         }
 
         /// <summary>
-        /// Goi 1 lan luc boot game. granter = null -> dung GameDataRewardGranter (coin/gem vao CurrencyData).
+        /// Goi 1 lan luc boot game. granter = null -> NullRewardGranter (chi log, khong cap qua).
+        /// validator = null -> ServerReceiptValidator(validationUrl) neu co URL, khong thi bo qua verify.
         /// Phai goi truoc khi game cho phep mua, vi store co the ban pending purchase ngay sau khi init.
         /// </summary>
-        public void Init(IRewardGranter granter = null, IStoreAdapter store = null)
+        public void Init(IRewardGranter granter = null, IStoreAdapter store = null, IReceiptValidator validator = null)
         {
             if (_initialized) return;
             if (catalog == null)
@@ -93,10 +111,18 @@ namespace LSDK.IAP
             _data = GameDataManager.Instance.Register<IAPData>();
 
             _granter = granter ?? new NullRewardGranter();
+            _validator = validator
+                         ?? (string.IsNullOrEmpty(validationUrl)
+                             ? null
+                             : new ServerReceiptValidator(validationUrl, validationTimeoutSeconds));
+            if (_validator == null && !Application.isEditor)
+                Debug.LogWarning("[IAP] Chua cau hinh verify server: qua se duoc cap chi dua tren callback cua store.");
+
             _store = store ?? CreateDefaultStore();
             _store.OnInitialized += HandleInitialized;
             _store.OnPurchaseSucceeded += HandleSuccess;
             _store.OnPurchaseFailed += HandleFail;
+            _store.OnPurchaseRestored += HandleRestored;
             _store.OnEntitlementUpdated += HandleEntitlementUpdated;
             _store.Initialize(catalog.products, this);
 
@@ -206,8 +232,9 @@ namespace LSDK.IAP
         #endregion
 
         #region Internal
-        private void HandleSuccess(string transactionId, string productId)
+        private void HandleSuccess(IAPReceipt receipt)
         {
+            var productId = receipt?.productId;
             var def = catalog.Get(productId);
             if (def == null)
             {
@@ -220,19 +247,60 @@ namespace LSDK.IAP
             long subExpire = def.type == IAPProductType.Subscription
                 ? _store.GetSubscriptionExpireUtcTicks(productId)
                 : 0;
-
-            // Khong cap lan nua: transaction da xu ly, non-consumable da so huu,
-            // hoac ky subscription cu da het han (iOS restore / cai lai game phat lai lich su).
-            bool duplicate = _data.IsProcessed(transactionId)
-                             || (def.type == IAPProductType.NonConsumable && _data.IsOwned(productId))
-                             || (subExpire > 0 && subExpire <= DateTime.UtcNow.Ticks);
-            if (duplicate)
+            if (IsAlreadyHandled(receipt, def, subExpire))
             {
-                _store.ConfirmPurchase(productId);
-                if (IsPendingProduct(productId)) FinishPurchase(IAPResult.Ok(productId));
+                ConfirmDuplicate(productId);
                 return;
             }
 
+            var key = ReceiptKey(receipt);
+            if (_validating.Contains(key)) return;
+            if (_rejected.Contains(key))
+            {
+                // Khong confirm: neu that su la don that bi tu choi nham, Google tu hoan tien sau 3 ngay.
+                FinishPurchase(IAPResult.Fail(productId, IAPFailReason.ValidationFailed));
+                return;
+            }
+
+            Verify(receipt, def, key, result =>
+            {
+                if (result.status != ReceiptValidationStatus.Valid)
+                {
+                    FinishPurchase(IAPResult.Fail(productId, result.status == ReceiptValidationStatus.Invalid
+                        ? IAPFailReason.ValidationFailed
+                        : IAPFailReason.ValidationError));
+                    return;
+                }
+
+                long expire = result.expireUtcTicks > 0 ? result.expireUtcTicks : subExpire;
+                // Doi server co the lau: store da ban lai / don khac da cap trong luc cho.
+                if (IsAlreadyHandled(receipt, def, expire))
+                {
+                    ConfirmDuplicate(productId);
+                    return;
+                }
+                GrantAndConfirm(receipt, def, expire);
+            });
+        }
+
+        private bool IsAlreadyHandled(IAPReceipt receipt, IAPProductDefinition def, long subExpire)
+        {
+            // Transaction da xu ly, non-consumable da so huu,
+            // hoac ky subscription cu da het han (iOS restore / cai lai game phat lai lich su).
+            return _data.IsProcessed(receipt.transactionId)
+                   || (def.type == IAPProductType.NonConsumable && _data.IsOwned(def.id))
+                   || (subExpire > 0 && subExpire <= DateTime.UtcNow.Ticks);
+        }
+
+        private void ConfirmDuplicate(string productId)
+        {
+            _store.ConfirmPurchase(productId);
+            if (IsPendingProduct(productId)) FinishPurchase(IAPResult.Ok(productId));
+        }
+
+        private void GrantAndConfirm(IAPReceipt receipt, IAPProductDefinition def, long subExpire)
+        {
+            var productId = def.id;
             try
             {
                 _granter.Grant(def);
@@ -249,7 +317,7 @@ namespace LSDK.IAP
                 _data.AddOwned(productId);
             if (def.type == IAPProductType.Subscription)
                 ApplySubscription(productId, true, subExpire, false);
-            _data.MarkProcessed(transactionId);
+            _data.MarkProcessed(receipt.transactionId);
 
             // GameData mac dinh debounce 1.5s -> ep ghi ngay (gom ca CurrencyData vua duoc cap qua) TRUOC khi confirm
             GameDataManager.Instance.SaveAll();
@@ -257,6 +325,86 @@ namespace LSDK.IAP
             _store.ConfirmPurchase(productId);
             FinishPurchase(IAPResult.Ok(productId));
         }
+
+        private void HandleRestored(IAPReceipt receipt)
+        {
+            var def = catalog.Get(receipt?.productId);
+            if (def == null || def.type != IAPProductType.NonConsumable || _data.IsOwned(def.id)) return;
+
+            var key = ReceiptKey(receipt);
+            if (_validating.Contains(key) || _rejected.Contains(key)) return;
+
+            Verify(receipt, def, key, result =>
+            {
+                if (result.status != ReceiptValidationStatus.Valid || _data.IsOwned(def.id)) return;
+
+                try
+                {
+                    _granter.Grant(def);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"[IAP] Grant that bai khi khoi phuc {def.id}: {e}");
+                    return;
+                }
+                _data.AddOwned(def.id);
+                GameDataManager.Instance.SaveAll();
+            });
+        }
+
+        /// <summary>
+        /// Goi validator roi kiem tra lai Product ID store tra ve phai trung SKU trong catalog.
+        /// Khong co validator (hoac don Mock khi skipValidationForMock) -> coi nhu hop le.
+        /// </summary>
+        private void Verify(IAPReceipt receipt, IAPProductDefinition def, string key, Action<ReceiptValidationResult> done)
+        {
+            receipt.storeProductId = def.GetStoreId();
+            receipt.productType = def.type.ToString();
+            receipt.userId = UserId;
+
+            bool skip = _validator == null || (skipValidationForMock && receipt.store == IAPStoreName.Mock);
+            if (skip)
+            {
+                done(ReceiptValidationResult.Valid(receipt.storeProductId, receipt.transactionId));
+                return;
+            }
+
+            _validating.Add(key);
+            _validator.Validate(receipt, result =>
+            {
+                _validating.Remove(key);
+                if (this == null || _data == null) return;
+
+                result = CheckStoreMatch(receipt, result);
+                if (result.status == ReceiptValidationStatus.Invalid)
+                    _rejected.Add(key);
+                if (result.status != ReceiptValidationStatus.Valid)
+                    Debug.LogWarning($"[IAP] Verify {receipt.productId} ({receipt.store}) {result.status}: {result.message}");
+
+                done(result);
+            });
+        }
+
+        private static ReceiptValidationResult CheckStoreMatch(IAPReceipt receipt, ReceiptValidationResult result)
+        {
+            if (result.status != ReceiptValidationStatus.Valid) return result;
+
+            if (string.IsNullOrEmpty(result.storeProductId))
+                return ReceiptValidationResult.Invalid("Server khong tra productId cua store.");
+
+            if (!string.Equals(result.storeProductId, receipt.storeProductId, StringComparison.Ordinal))
+                return ReceiptValidationResult.Invalid(
+                    $"Product ID store '{result.storeProductId}' khac catalog '{receipt.storeProductId}'.");
+
+            if (!string.IsNullOrEmpty(result.transactionId) && !string.IsNullOrEmpty(receipt.transactionId)
+                && !string.Equals(result.transactionId, receipt.transactionId, StringComparison.Ordinal))
+                return ReceiptValidationResult.Invalid("Transaction server tra ve khac don dang xu ly.");
+
+            return result;
+        }
+
+        private static string ReceiptKey(IAPReceipt receipt) =>
+            string.IsNullOrEmpty(receipt.transactionId) ? receipt.productId : receipt.transactionId;
 
         private void HandleFail(string productId, IAPFailReason reason)
         {
@@ -268,27 +416,9 @@ namespace LSDK.IAP
             var def = catalog.Get(productId);
             if (def == null) return;
 
+            // Non-consumable khoi phuc di qua HandleRestored (co receipt de verify).
             if (def.type == IAPProductType.Subscription)
-            {
                 ApplySubscription(productId, active, expireUtcTicks, true);
-                return;
-            }
-
-            // Non-consumable da confirm tu truoc (cai lai game, may moi) -> khong co transaction moi nen cap tai day.
-            // Khong thu hoi khi NotEntitled de tranh mat do khi store tra sai.
-            if (def.type != IAPProductType.NonConsumable || !active || _data.IsOwned(productId)) return;
-
-            try
-            {
-                _granter.Grant(def);
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[IAP] Grant that bai khi khoi phuc {productId}: {e}");
-                return;
-            }
-            _data.AddOwned(productId);
-            GameDataManager.Instance.SaveAll();
         }
 
         private void ApplySubscription(string productId, bool active, long expireUtcTicks, bool saveImmediately)

@@ -12,6 +12,10 @@ namespace LSDK.IAP
         ProductUnavailable,
         /// <summary>Thanh toan bi hoan (Ask to Buy, Google pending). Khi duyet xong se cap qua qua OnPurchaseCompleted.</summary>
         Deferred,
+        /// <summary>Server verify tu choi: don gia, sai Product ID so voi store, da hoan tien...</summary>
+        ValidationFailed,
+        /// <summary>Khong verify duoc (mat mang, server loi). Don chua confirm, store gui lai lan mo app sau.</summary>
+        ValidationError,
         Unknown
     }
 
