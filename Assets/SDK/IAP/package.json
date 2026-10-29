@@ -1,7 +1,7 @@
 {
     "name": "com.lsdk.iap",
     "displayName": "LSDK IAP",
-    "version": "1.1.0",
+    "version": "1.0.3",
     "unity": "2022.3",
     "description": "LSDK IAP manager: Singleton + Coroutine, tach adapter khoi Unity IAP v5, luu state qua LSDK GameData.",
     "dependencies": {
