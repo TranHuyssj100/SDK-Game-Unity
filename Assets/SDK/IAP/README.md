@@ -7,8 +7,9 @@ Assembly: `LSDK.IAP.Runtime` tham chieu `LSDK.Gamedata.Runtime`, `LSDK.GameData.
 
 ## Setup
 
-1. `Create > SDK > IAP Catalog`, them san pham (id, googleId, appleId, type, rewardType, rewardAmount).
-   Vd: `coin_pack_1` / Consumable / Coin / 500; `remove_ads` / NonConsumable; `vip_monthly` / Subscription.
+1. `Create > SDK > IAP Catalog`, them san pham (id, googleId, appleId, type, rewards).
+   `rewards` la list: moi dong co `rewardKey` + `rewardAmount`. Mot goi co the co nhieu phan, vd Coin 500 va Gem 10.
+   Vd: `coin_pack_1` / Consumable / Coin 500; `remove_ads` / NonConsumable / bat `removeAds`; `vip_monthly` / Subscription.
 2. Tao GameObject, gan `IAPManager`, keo catalog vao.
 3. Boot game (sau khi GameDataManager da len):
 
@@ -19,9 +20,9 @@ IAPManager.Instance.Init();   // mac dinh: coin/gem cap vao CurrencyData
 Can cap qua rieng (item, starter pack...):
 
 ```csharp
-IAPManager.Instance.Init(new GameDataRewardGranter(p =>
+IAPManager.Instance.Init(new GameDataRewardGranter((p, reward) =>
 {
-    if (p.id == "starter_pack") { /* ... */ }
+    if (reward.rewardKey == "starter_item") { /* reward.rewardAmount */ }
 }));
 ```
 
@@ -35,7 +36,7 @@ IAPManager.Instance.Purchase("coin_pack_1", r =>
 });
 
 string price = IAPManager.Instance.GetPrice("remove_ads");
-bool noAds   = IAPManager.Instance.IsOwned("remove_ads");   // AdManager doc cai nay
+bool noAds   = IAPManager.Instance.IsAdsRemoved();   // true neu bat ky goi removeAds nao dang so huu / con han
 bool vip     = IAPManager.Instance.IsSubscribed("vip_monthly");
 DateTime? exp = IAPManager.Instance.GetSubscriptionExpireUtc("vip_monthly");
 IAPManager.Instance.Restore(ok => { });                      // nut Restore tren iOS

@@ -13,7 +13,7 @@ namespace LSDK.IAP
         public void Grant(IAPProductDefinition product)
         {
             Debug.LogWarning(
-                $"[IAP] NullRewardGranter: san pham '{product.id}' (rewardKey='{product.rewardKey}') " +
+                $"[IAP] NullRewardGranter: san pham '{product.id}' ({product.rewards?.Count ?? 0} reward) " +
                 "khong duoc cap qua. Goi IAPManager.Instance.Init(yourGranter) voi mot IRewardGranter hop le. " +
                 "Tham khao sample 'GameDataIntegration' de dung san co voi LSDK GameData."
             );
@@ -24,8 +24,33 @@ namespace LSDK.IAP
 namespace LSDK.IAP
 {
     /// <summary>
+    /// Loai xac thuc receipt sau khi store xac nhan giao dich thanh cong.
+    /// </summary>
+    public enum ValidationMode
+    {
+        /// <summary>
+        /// Khong xac thuc them. Qua duoc cap ngay sau khi store callback.
+        /// Chi nen dung trong dev / prototype.
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        /// Xac thuc tren thiet bi bang CrossPlatformValidator cua Unity IAP (client-side).
+        /// Khong can server rieng. Can chay IAP Receipt Validation Obfuscator truoc
+        /// (Window > Unity IAP > IAP Receipt Validation Obfuscator).
+        /// </summary>
+        UnityLocal = 1,
+
+        /// <summary>
+        /// POST receipt len server backend cua game, server hoi Google Play / Apple.
+        /// An toan nhat. Can dien Validation Url o duoi.
+        /// </summary>
+        Server = 2,
+    }
+
+    /// <summary>
     /// Entry point cua module IAP. Singleton + Coroutine, state luu qua LSDK GameData (IAPData).
-    /// Flow: Purchase -> store xac nhan -> Verify server (Product ID phai khop store) -> Grant -> SaveAll -> Confirm.
+    /// Flow: Purchase -> store xac nhan -> Verify (theo ValidationMode) -> Grant -> SaveAll -> Confirm.
     /// </summary>
     [DisallowMultipleComponent]
     public class IAPManager : MonoBehaviour
@@ -42,12 +67,16 @@ namespace LSDK.IAP
         [SerializeField] private IAPProductCatalog catalog;
         [SerializeField] private bool useMockInEditor = true;
 
-        [Header("Server verify")]
-        [Tooltip("Endpoint POST IAPReceipt. Trong = khong verify (chi nen dung khi dev).")]
+        [Header("Validation")]
+        [Tooltip("None = khong verify (dev/test). UnityLocal = CrossPlatformValidator tren thiet bi. Server = POST len backend cua ban.")]
+        [SerializeField] private ValidationMode validationMode = ValidationMode.None;
+        [Tooltip("Bo qua verify cho don cua MockStoreAdapter (Editor). Ap dung cho ca UnityLocal va Server.")]
+        [SerializeField] private bool skipValidationForMock = true;
+
+        [Header("Server Validation (chi khi ValidationMode = Server)")]
+        [Tooltip("Endpoint nhan POST IAPReceipt. Vi du: https://api.yourgame.com/iap/verify")]
         [SerializeField] private string validationUrl;
         [SerializeField, Min(1)] private int validationTimeoutSeconds = 15;
-        [Tooltip("Bo qua verify cho don cua MockStoreAdapter (Editor).")]
-        [SerializeField] private bool skipValidationForMock = true;
 
         public bool IsReady { get; private set; }
 
@@ -111,12 +140,9 @@ namespace LSDK.IAP
             _data = GameDataManager.Instance.Register<IAPData>();
 
             _granter = granter ?? new NullRewardGranter();
-            _validator = validator
-                         ?? (string.IsNullOrEmpty(validationUrl)
-                             ? null
-                             : new ServerReceiptValidator(validationUrl, validationTimeoutSeconds));
+            _validator = validator ?? CreateValidatorFromSettings();
             if (_validator == null && !Application.isEditor)
-                Debug.LogWarning("[IAP] Chua cau hinh verify server: qua se duoc cap chi dua tren callback cua store.");
+                Debug.LogWarning("[IAP] ValidationMode = None: qua se duoc cap chi dua tren callback cua store. Doi sang UnityLocal hoac Server de bao mat hon.");
 
             _store = store ?? CreateDefaultStore();
             _store.OnInitialized += HandleInitialized;
@@ -201,6 +227,25 @@ namespace LSDK.IAP
 
         public bool IsOwned(string productId) => _data != null && _data.IsOwned(productId);
 
+        /// <summary>
+        /// true khi co it nhat mot san pham removeAds dang hieu luc:
+        /// NonConsumable da so huu, hoac Subscription chua het han.
+        /// </summary>
+        public bool IsAdsRemoved()
+        {
+            var products = catalog != null ? catalog.products : null;
+            if (products == null) return false;
+
+            for (int i = 0; i < products.Count; i++)
+            {
+                var product = products[i];
+                if (product == null || !product.removeAds || string.IsNullOrEmpty(product.id)) continue;
+                if (product.type == IAPProductType.NonConsumable && IsOwned(product.id)) return true;
+                if (product.type == IAPProductType.Subscription && IsSubscribed(product.id)) return true;
+            }
+            return false;
+        }
+
         /// <summary>Subscription con hieu luc. Doc duoc ca khi store chua san sang, dua tren ban luu local.</summary>
         public bool IsSubscribed(string productId) => _data != null && _data.IsSubscribed(productId);
 
@@ -230,6 +275,32 @@ namespace LSDK.IAP
             });
         }
         #endregion
+
+        /// <summary>
+        /// Tao validator tuong ung voi ValidationMode duoc chon tren Inspector.
+        /// Chi goi khi Init() khong truyen validator tuong minh.
+        /// </summary>
+        private IReceiptValidator CreateValidatorFromSettings()
+        {
+            switch (validationMode)
+            {
+                case ValidationMode.UnityLocal:
+                    return new UnityReceiptValidator();
+
+                case ValidationMode.Server:
+                    if (string.IsNullOrEmpty(validationUrl))
+                    {
+                        Debug.LogWarning(
+                            "[IAP] ValidationMode = Server nhung Validation Url chua duoc dien. " +
+                            "Chuyen ve None. Hay nhap URL endpoint cua server vao Inspector.");
+                        return null;
+                    }
+                    return new ServerReceiptValidator(validationUrl, validationTimeoutSeconds);
+
+                default: // None
+                    return null;
+            }
+        }
 
         #region Internal
         private void HandleSuccess(IAPReceipt receipt)

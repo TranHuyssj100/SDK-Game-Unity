@@ -27,6 +27,9 @@ namespace LSDK.IAP.EditorTools
 
                 if (string.IsNullOrEmpty(p.googleId) && string.IsNullOrEmpty(p.appleId))
                     EditorGUILayout.HelpBox($"'{p.id}': chua co googleId/appleId, se dung ID noi bo lam store ID.", MessageType.Warning);
+
+                if (p.removeAds && p.type == IAPProductType.Consumable)
+                    EditorGUILayout.HelpBox($"'{p.id}': removeAds tren Consumable khong duoc giu. Dung NonConsumable hoac Subscription.", MessageType.Error);
             }
         }
     }
