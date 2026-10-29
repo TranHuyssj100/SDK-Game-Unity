@@ -24,9 +24,10 @@ namespace LSDK.IAP
     public class IAPProductDefinition
     {
         [Tooltip("ID noi bo dung trong code, vd: remove_ads")]
+
         public IAPProductType type;
         public string id;
-
+        [Space()]
         public string googleId;   // SKU tren Google Play
         public string appleId;    // Product ID tren App Store
 
