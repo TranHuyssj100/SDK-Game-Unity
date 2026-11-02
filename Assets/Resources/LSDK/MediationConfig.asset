@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9fc3cbd2af116464bbce17e53d80d8a2, type: 3}
+  m_Name: MediationConfig
+  m_EditorClassIdentifier: LSDK.Mediation::LSDK.Mediation.MediationConfig
+  useTestAds: 1
+  autoInitialize: 1
+  autoPreload: 1
+  initTimeout: 15
+  interstitialCooldown: 30
+  rewardedResetsInterstitialCooldown: 1
+  autoShowAppOpen: 1
+  appOpenMinBackgroundSeconds: 5
+  appOpenCooldown: 60
+  retryBaseDelay: 2
+  retryMaxDelay: 64
+  maxRetryCount: 0
+  childDirected: 0
+  testDeviceIds: []
+  networks:
+  - network: 0
+    enabled: 1
+    priority: 0
+    android:
+      banner: 
+      interstitial: 
+      rewarded: 
+      appOpen: 
+    ios:
+      banner: 
+      interstitial: 
+      rewarded: 
+      appOpen: 
