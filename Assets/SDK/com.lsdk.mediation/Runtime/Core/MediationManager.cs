@@ -101,7 +101,7 @@ namespace LSDK.Mediation
         [field: SerializeField] public bool IsInitialized { get; private set; }
         public MediationConfig Config => _config;
         /// <summary>User đã mua Remove Ads: chặn Banner/Interstitial/AppOpen, Rewarded vẫn chạy.</summary>
-        public bool AdsRemoved { get; private set; }
+        [field: SerializeField] public bool AdsRemoved { get; private set; }
         /// <summary>Tắt tạm App Open tự động (vd đang IAP, đang xin permission...).</summary>
         public bool AppOpenEnabled { get; set; } = true;
         public bool IsShowingFullscreenAd => _current != null;
