@@ -1,0 +1,16 @@
+{
+  "name": "com.lsdk.mediation",
+  "displayName": "LSDK Mediation",
+  "version": "1.0.0",
+  "unity": "2021.3",
+  "description": "Ad mediation layer for Unity: Banner, Interstitial, Rewarded, App Open. Multi-network via adapters (AdMob first).",
+  "keywords": ["lsdk", "ads", "mediation", "admob"],
+  "dependencies": {},
+  "samples": [
+    {
+      "displayName": "Mediation Demo",
+      "description": "Simple OnGUI demo showing how to call MediationManager.",
+      "path": "Samples~/MediationDemo"
+    }
+  ]
+}

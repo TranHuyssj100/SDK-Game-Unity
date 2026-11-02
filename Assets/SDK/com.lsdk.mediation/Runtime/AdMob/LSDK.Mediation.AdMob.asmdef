@@ -1,0 +1,25 @@
+{
+  "name": "LSDK.Mediation.AdMob",
+  "rootNamespace": "LSDK.Mediation.AdMob",
+  "references": [
+    "LSDK.Mediation",
+    "GoogleMobileAds"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [
+    "LSDK_ADMOB"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.google.ads.mobile",
+      "expression": "",
+      "define": "LSDK_ADMOB"
+    }
+  ],
+  "noEngineReferences": false
+}
