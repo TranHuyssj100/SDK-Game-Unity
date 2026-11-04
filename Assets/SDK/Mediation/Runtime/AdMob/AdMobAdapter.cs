@@ -28,6 +28,7 @@ namespace LSDK.Mediation.AdMob
 
         private GMA.BannerView _banner;
         private bool _bannerLoaded;
+        private BannerPosition _bannerPosition;
 
         private GMA.InterstitialAd _interstitial;
         private bool _loadingInterstitial;
@@ -155,15 +156,18 @@ namespace LSDK.Mediation.AdMob
         // ───────────────────────── Banner ─────────────────────────
         public override void ShowBanner(BannerPosition position)
         {
-            var pos = position == BannerPosition.Top ? GMA.AdPosition.Top : GMA.AdPosition.Bottom;
-
-            if (_banner != null)
+            // SetPosition của plugin editor gọi AnchorAd, làm banner adaptive mất stretch full-width.
+            // Cùng vị trí thì chỉ Show lại. Đổi vị trí thì tạo banner mới để SetAndStretchAd chạy lại.
+            if (_banner != null && _bannerPosition == position)
             {
-                _banner.SetPosition(pos);
                 _banner.Show();
                 return;
             }
 
+            if (_banner != null) DestroyBanner();
+            _bannerPosition = position;
+
+            var pos = position == BannerPosition.Top ? GMA.AdPosition.Top : GMA.AdPosition.Bottom;
             string unitId = GetAdUnitId(AdFormat.Banner);
             if (string.IsNullOrEmpty(unitId))
             {
