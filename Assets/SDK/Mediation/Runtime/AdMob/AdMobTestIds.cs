@@ -16,7 +16,7 @@ namespace LSDK.Mediation.AdMob
 #else
             switch (format)
             {
-                case AdFormat.Banner: return "ca-app-pub-3940256099942544/6300978111";
+                case AdFormat.Banner: return "ca-app-pub-3940256099942544/9214589741";
                 case AdFormat.Interstitial: return "ca-app-pub-3940256099942544/1033173712";
                 case AdFormat.Rewarded: return "ca-app-pub-3940256099942544/5224354917";
                 case AdFormat.AppOpen: return "ca-app-pub-3940256099942544/9257395921";

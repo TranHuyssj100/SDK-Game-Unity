@@ -50,6 +50,23 @@ namespace LSDK.Mediation.AdMob
             // Đưa mọi callback của GMA về main thread
             GMA.MobileAds.RaiseAdEventsOnUnityMainThread = true;
 
+            // Bước 1: xin consent (UMP) trước khi khởi tạo MobileAds
+            AdMobConsentManager.GatherConsent(config, canRequestAds =>
+            {
+                if (!canRequestAds)
+                {
+                    DebugUtils.Warning("AdMob: chưa có consent — không khởi tạo ad.");
+                    onComplete?.Invoke(false);
+                    return;
+                }
+
+                // Bước 2: cấu hình request rồi khởi tạo MobileAds
+                InitializeMobileAds(config, onComplete);
+            });
+        }
+
+        private void InitializeMobileAds(MediationConfig config, Action<bool> onComplete)
+        {
             var request = new GMA.RequestConfiguration();
             if (config.testDeviceIds != null && config.testDeviceIds.Count > 0)
             {
@@ -73,6 +90,12 @@ namespace LSDK.Mediation.AdMob
                 onComplete?.Invoke(true);
             });
         }
+
+        // ───────────────────────── Consent ─────────────────────────
+        public override bool IsPrivacyOptionsRequired => AdMobConsentManager.IsPrivacyOptionsRequired;
+
+        public override void ShowPrivacyOptionsForm(Action<string> onComplete) =>
+            AdMobConsentManager.ShowPrivacyOptionsForm(onComplete);
 
         private string GetAdUnitId(AdFormat format)
         {

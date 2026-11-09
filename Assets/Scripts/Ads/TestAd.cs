@@ -14,6 +14,10 @@ public class TestAd : MonoBehaviour
     [SerializeField] private Button _showRewardedButton;
     [SerializeField] private Button _showAppOpenButton;
 
+    [SerializeField] private Button privacyButton;
+
+    public GameObject InternetCheckerUI;
+
 
     private void Awake()
     {
@@ -22,15 +26,39 @@ public class TestAd : MonoBehaviour
         _showInterstitialButton.onClick.AddListener(ShowInterstitial);
         _showRewardedButton.onClick.AddListener(ShowRewarded);
         _showAppOpenButton.onClick.AddListener(ShowAppOpen);
+        privacyButton.onClick.AddListener(ShowPrivacyOptions);
     }
 
-
+    private void ShowPrivacyOptions()
+    {
+        MediationManager.Instance.ShowPrivacyOptionsForm(() =>
+        {
+            Debug.Log("User đã chỉnh xong consent.");
+        });
+    }
 
     void Start()
     {
-        // ShowBanner();
-        ShowAppOpen();
+        Debug.Log("lew_Hashed Device ID: " + SystemInfo.deviceUniqueIdentifier);
 
+        ShowBanner();
+        ShowAppOpen();
+        privacyButton.gameObject.SetActive(MediationManager.Instance.IsPrivacyOptionsRequired);
+
+
+    }
+    private void OnEnable()
+    {
+        MediationManager.OnNetworkChanged += OnNetworkChanged;
+    }
+    private void OnDisable()
+    {
+        MediationManager.OnNetworkChanged -= OnNetworkChanged;
+    }
+    private void OnNetworkChanged(bool isNetworkAvailable)
+    {
+        Debug.Log("lew_OnNetworkChanged: " + isNetworkAvailable);
+        InternetCheckerUI.SetActive(!isNetworkAvailable);
     }
 
 

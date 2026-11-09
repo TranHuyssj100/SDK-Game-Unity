@@ -44,6 +44,7 @@ namespace LSDK.Mediation
             OnAdClosed = null;
             OnAdRevenuePaid = null;
             OnFullscreenAdStateChanged = null;
+            OnNetworkChanged = null;
         }
 
         // ───────────────────────── Events ─────────────────────────
@@ -98,6 +99,14 @@ namespace LSDK.Mediation
         private int _bannerFailRound;
         private Coroutine _bannerRetry;
 
+        // network monitor
+        private NetworkReachability _lastReachability = NetworkReachability.NotReachable;
+        private Coroutine _networkMonitor;
+
+        /// <summary>true = đang có kết nối mạng. Cập nhật mỗi 3 giây, dùng để show/ẩn UI offline.</summary>
+        public static event Action<bool> OnNetworkChanged;
+        public bool IsNetworkAvailable { get; private set; }
+
         [field: SerializeField] public bool IsInitialized { get; private set; }
         public MediationConfig Config => _config;
         /// <summary>User đã mua Remove Ads: chặn Banner/Interstitial/AppOpen, Rewarded vẫn chạy.</summary>
@@ -133,6 +142,7 @@ namespace LSDK.Mediation
             {
                 _hasPaused = true;
                 _pausedAtUtc = DateTime.UtcNow;
+                StopNetworkMonitor();
                 return;
             }
 
@@ -140,11 +150,13 @@ namespace LSDK.Mediation
 
             PreloadAll(); // load lại ad hết hạn / bị mất
             TryShowAppOpenOnResume();
+            StartNetworkMonitor();
         }
 
         private void OnApplicationQuit()
         {
             _isQuitting = true;
+            StopNetworkMonitor();
         }
 
         private void OnDestroy()
@@ -236,6 +248,7 @@ namespace LSDK.Mediation
 
             if (_config.autoPreload) PreloadAll();
             if (_bannerRequested && !AdsRemoved) StartBanner(0);
+            StartNetworkMonitor();
         }
 
         private string InitializedNetworks()
@@ -278,6 +291,45 @@ namespace LSDK.Mediation
 
         public bool IsRewardedReady => IsReady(AdFormat.Rewarded);
         public bool IsInterstitialReady => IsReady(AdFormat.Interstitial);
+
+        // ───────────────────────── Consent Public API ─────────────────────────
+        /// <summary>
+        /// true nếu có ít nhất 1 network yêu cầu hiện nút mở Privacy Options (theo UMP).
+        /// Dùng để show/ẩn nút Settings trong game.
+        /// </summary>
+        public bool IsPrivacyOptionsRequired
+        {
+            get
+            {
+                foreach (var a in _adapters)
+                    if (a.IsPrivacyOptionsRequired) return true;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Mở Privacy Options Form khi user bấm nút trong Settings.
+        /// Chỉ cần gọi khi IsPrivacyOptionsRequired == true.
+        /// </summary>
+        public void ShowPrivacyOptionsForm(Action onComplete = null)
+        {
+            foreach (var a in _adapters)
+            {
+                if (!a.IsPrivacyOptionsRequired) continue;
+
+                a.ShowPrivacyOptionsForm(err =>
+                {
+                    if (err != null) DebugUtils.Warning($"Privacy options form lỗi: {err}");
+                    try { onComplete?.Invoke(); }
+                    catch (Exception e) { DebugUtils.Exception(e); }
+                });
+                return;
+            }
+
+            // Không network nào cần — gọi callback ngay
+            try { onComplete?.Invoke(); }
+            catch (Exception e) { DebugUtils.Exception(e); }
+        }
 
         public void ShowInterstitial(string placement, Action<AdShowResult> onResult = null, bool ignoreCooldown = false)
         {
@@ -446,6 +498,71 @@ namespace LSDK.Mediation
             if ((DateTime.UtcNow - _pausedAtUtc).TotalSeconds < _config.appOpenMinBackgroundSeconds) return;
 
             ShowAppOpen("app_resume");
+        }
+
+        // ───────────────────────── Network Monitor ─────────────────────────
+        private void StartNetworkMonitor()
+        {
+            if (_networkMonitor != null) return;
+            _lastReachability = Application.internetReachability;
+            IsNetworkAvailable = _lastReachability != NetworkReachability.NotReachable;
+            _networkMonitor = StartCoroutine(NetworkMonitorRoutine());
+        }
+
+        private void StopNetworkMonitor()
+        {
+            if (_networkMonitor == null) return;
+            StopCoroutine(_networkMonitor);
+            _networkMonitor = null;
+        }
+
+        private IEnumerator NetworkMonitorRoutine()
+        {
+            while (true)
+            {
+                yield return new WaitForSecondsRealtime(3f);
+
+                var current = Application.internetReachability;
+                bool wasOffline = _lastReachability == NetworkReachability.NotReachable;
+                bool isOnline   = current != NetworkReachability.NotReachable;
+                bool wasOnline  = _lastReachability != NetworkReachability.NotReachable;
+
+                if (wasOffline && isOnline)
+                {
+                    IsNetworkAvailable = true;
+                    DebugUtils.Success("Mạng trở lại — load lại ad.");
+                    OnNetworkChanged?.Invoke(true);
+                    OnNetworkRestored();
+                }
+                else if (wasOnline && !isOnline)
+                {
+                    IsNetworkAvailable = false;
+                    DebugUtils.Warning("Mất kết nối mạng.");
+                    OnNetworkChanged?.Invoke(false);
+                }
+
+                _lastReachability = current;
+            }
+        }
+
+        private void OnNetworkRestored()
+        {
+            // Fullscreen: reset backoff rồi load ngay
+            _retryCounts.Clear();
+            if (_config.autoPreload) PreloadAll();
+
+            // Banner: nếu chưa hiện (đang chờ retry hoặc load lỗi) thì reset và thử lại ngay
+            if (_bannerRequested && !AdsRemoved)
+            {
+                if (_bannerAdapter == null)
+                {
+                    // Đang ở backoff → tắt timer cũ, reset round và khởi động ngay
+                    StopBannerRetry();
+                    _bannerFailRound = 0;
+                    StartBanner(0);
+                }
+                // Nếu banner đang tồn tại (đã hiện) → AdMob tự refresh, không cần can thiệp
+            }
         }
 
         // ───────────────────────── Load / Retry ─────────────────────────

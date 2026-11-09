@@ -36,5 +36,11 @@ namespace LSDK.Mediation
         void ShowBanner(BannerPosition position);
         void HideBanner();
         void DestroyBanner();
+
+        /// <summary>true nếu UMP/GDPR yêu cầu hiện nút mở Privacy Options (theo ConsentInformation.PrivacyOptionsRequirementStatus).</summary>
+        bool IsPrivacyOptionsRequired { get; }
+
+        /// <summary>Mở Privacy Options Form cho user chỉnh lại consent. onComplete(errorMessage) — null nếu thành công.</summary>
+        void ShowPrivacyOptionsForm(Action<string> onComplete);
     }
 }

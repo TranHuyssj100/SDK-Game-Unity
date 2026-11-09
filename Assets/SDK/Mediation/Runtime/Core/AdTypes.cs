@@ -31,6 +31,17 @@ namespace LSDK.Mediation
         False = 2
     }
 
+    /// <summary>Giả lập vùng địa lý để test UMP consent form (chỉ dùng khi debug).</summary>
+    public enum ConsentDebugGeography
+    {
+        /// <summary>Không giả lập — dùng vị trí thực của thiết bị.</summary>
+        Disabled = 0,
+        /// <summary>Giả lập user ở EEA (GDPR). Form consent sẽ hiện.</summary>
+        EEA = 1,
+        /// <summary>Giả lập user ngoài EEA. Form consent không hiện.</summary>
+        NotEEA = 2
+    }
+
     /// <summary>Kết quả trả về cho callback khi show fullscreen ad.</summary>
     public enum AdShowResult
     {

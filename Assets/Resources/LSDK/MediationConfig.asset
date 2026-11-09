@@ -15,7 +15,7 @@ MonoBehaviour:
   useTestAds: 1
   autoInitialize: 1
   autoPreload: 1
-  initTimeout: 15
+  initTimeout: 120
   interstitialCooldown: 30
   rewardedResetsInterstitialCooldown: 1
   autoShowAppOpen: 1
@@ -25,7 +25,11 @@ MonoBehaviour:
   retryMaxDelay: 64
   maxRetryCount: 0
   childDirected: 0
-  testDeviceIds: []
+  testDeviceIds:
+  - 5d49c7ad762d39ac90a3edc157287515
+  skipConsent: 0
+  consentDebugGeography: 1
+  consentTestDeviceHashedIds: []
   networks:
   - network: 0
     enabled: 1

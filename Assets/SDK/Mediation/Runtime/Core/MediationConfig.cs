@@ -94,7 +94,16 @@ namespace LSDK.Mediation
 
         [Header("Privacy")]
         public ChildDirectedMode childDirected = ChildDirectedMode.Unspecified;
+        [Tooltip("Test Device IDs cho GMA (lấy từ logcat). Xóa trước khi release.")]
         public List<string> testDeviceIds = new List<string>();
+
+        [Header("Consent (UMP/GDPR)")]
+        [Tooltip("true = bỏ qua xin consent (không dùng UMP). Dùng cho app trẻ em hoặc khu vực không yêu cầu consent.")]
+        public bool skipConsent = false;
+        [Tooltip("Debug: giả lập vùng địa lý để test consent form. Chỉ dùng khi test, xóa trước khi release.")]
+        public ConsentDebugGeography consentDebugGeography = ConsentDebugGeography.Disabled;
+        [Tooltip("Hashed Device ID để bật UMP debug mode (lấy từ logcat). Xóa trước khi release.")]
+        public List<string> consentTestDeviceHashedIds = new List<string>();
 
         [Header("Networks")]
         public List<NetworkConfig> networks = new List<NetworkConfig>();

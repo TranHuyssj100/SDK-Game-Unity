@@ -33,5 +33,9 @@ namespace LSDK.Mediation
         public abstract void ShowBanner(BannerPosition position);
         public abstract void HideBanner();
         public abstract void DestroyBanner();
+
+        // Consent — network không dùng UMP thì override là không cần thiết
+        public virtual bool IsPrivacyOptionsRequired => false;
+        public virtual void ShowPrivacyOptionsForm(Action<string> onComplete) => onComplete?.Invoke(null);
     }
 }
