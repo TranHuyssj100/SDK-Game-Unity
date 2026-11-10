@@ -3,7 +3,10 @@
     "rootNamespace": "LSDK.IAP",
     "references": [
         "LSDK.Gamedata.Runtime",
-        "UnityEngine.Purchasing",
+        "Unity.Purchasing",
+        "Unity.Purchasing.Security",
+        "Unity.Purchasing.SecurityCore",
+        "Unity.Purchasing.SecurityStub",
         "Unity.Services.Core"
     ],
     "includePlatforms": [],
@@ -13,6 +16,12 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.purchasing",
+            "expression": "5.0.0",
+            "define": "UNITY_PURCHASING"
+        }
+    ],
     "noEngineReferences": false
 }
