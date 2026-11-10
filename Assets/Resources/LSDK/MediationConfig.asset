@@ -26,10 +26,11 @@ MonoBehaviour:
   maxRetryCount: 0
   childDirected: 0
   testDeviceIds:
-  - 5d49c7ad762d39ac90a3edc157287515
+  - 846AB996BE21A5DDE53A10249B179CAB
   skipConsent: 0
   consentDebugGeography: 1
-  consentTestDeviceHashedIds: []
+  consentTestDeviceHashedIds:
+  - F7E828C3653EC90058A1EAF34F38220D
   networks:
   - network: 0
     enabled: 1

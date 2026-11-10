@@ -14,6 +14,14 @@ namespace LSDK.Mediation.AdMob
         public static bool IsPrivacyOptionsRequired =>
             ConsentInformation.PrivacyOptionsRequirementStatus == PrivacyOptionsRequirementStatus.Required;
 
+        // ── Static refs giữ AndroidJavaProxy sống đến khi callback fire ──
+        // Unity IL2CPP GC có thể thu hồi AndroidJavaProxy nếu không có strong reference.
+        // UMP dùng AndroidJavaProxy cho OnConsentInfoUpdateSuccessListener và
+        // OnConsentFormDismissedListener. Nếu proxy bị GC trước khi server phản hồi,
+        // callback im lặng hoàn toàn (không lỗi, không log).
+        private static Action<FormError> _updateCallbackRef;
+        private static Action<FormError> _formCallbackRef;
+
         // ───────────────────────── Gather consent ─────────────────────────
         /// <summary>
         /// Xin consent lúc khởi động. Callback trả true nếu có thể request ad.
@@ -28,10 +36,19 @@ namespace LSDK.Mediation.AdMob
                 return;
             }
 
+            DebugUtils.Success($"Consent: GatherConsent bắt đầu. DebugGeo={config.consentDebugGeography}, " +
+                               $"HashIds={config.consentTestDeviceHashedIds?.Count ?? 0}, " +
+                               $"CurrentStatus={ConsentInformation.ConsentStatus}.");
+
             var requestParams = BuildRequestParams(config);
 
-            ConsentInformation.Update(requestParams, updateError =>
+            DebugUtils.Success("Consent: gọi ConsentInformation.Update...");
+
+            // Giữ strong reference — ngăn GC thu hồi AndroidJavaProxy bên trong UMP
+            _updateCallbackRef = updateError =>
             {
+                _updateCallbackRef = null;
+
                 if (updateError != null)
                 {
                     DebugUtils.Warning($"Consent update lỗi [{updateError.ErrorCode}]: {updateError.Message}. Dùng consent phiên trước.");
@@ -42,17 +59,25 @@ namespace LSDK.Mediation.AdMob
 
                 DebugUtils.Success($"Consent status: {ConsentInformation.ConsentStatus}. CanRequestAds: {ConsentInformation.CanRequestAds()}.");
 
-                // Show form nếu cần (không làm gì nếu không cần)
-                ConsentForm.LoadAndShowConsentFormIfRequired(formError =>
+                // Giữ strong reference cho form callback cũng vì lý do tương tự
+                _formCallbackRef = formError =>
                 {
+                    _formCallbackRef = null;
+
                     if (formError != null)
                         DebugUtils.Warning($"Consent form lỗi [{formError.ErrorCode}]: {formError.Message}.");
                     else
                         DebugUtils.Success("Consent form hoàn tất.");
 
                     onComplete?.Invoke(ConsentInformation.CanRequestAds());
-                });
-            });
+                };
+
+                // Show form nếu cần (không làm gì nếu không cần)
+                ConsentForm.LoadAndShowConsentFormIfRequired(_formCallbackRef);
+            };
+
+            DebugUtils.Success("Consent: ConsentInformation.Update đã được gọi, chờ callback...");
+            ConsentInformation.Update(requestParams, _updateCallbackRef);
         }
 
         // ───────────────────────── Privacy Options ─────────────────────────

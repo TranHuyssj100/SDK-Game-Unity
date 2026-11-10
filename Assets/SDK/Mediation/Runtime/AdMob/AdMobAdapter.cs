@@ -47,12 +47,20 @@ namespace LSDK.Mediation.AdMob
             _config = config;
             _networkConfig = networkConfig;
 
-            // Đưa mọi callback của GMA về main thread
+            DebugUtils.Success("AdMob: bắt đầu Initialize.");
+
+            // UMP/GMA đẩy callback qua MobileAds.RaiseAction. Executor chỉ được tạo
+            // khi đụng MobileAds.Instance. Bật cờ trước khi có executor thì callback
+            // bị xếp hàng và không bao giờ chạy — form không hiện, init treo đến timeout.
+            _ = GMA.MobileAds.Instance;
             GMA.MobileAds.RaiseAdEventsOnUnityMainThread = true;
+
+            DebugUtils.Success("AdMob: executor sẵn sàng. Gọi GatherConsent...");
 
             // Bước 1: xin consent (UMP) trước khi khởi tạo MobileAds
             AdMobConsentManager.GatherConsent(config, canRequestAds =>
             {
+                DebugUtils.Success($"AdMob: GatherConsent callback — canRequestAds={canRequestAds}.");
                 if (!canRequestAds)
                 {
                     DebugUtils.Warning("AdMob: chưa có consent — không khởi tạo ad.");
@@ -64,6 +72,11 @@ namespace LSDK.Mediation.AdMob
                 InitializeMobileAds(config, onComplete);
             });
         }
+
+        // Static ref giữ GMA OnInitializationCompleteListener (AndroidJavaProxy) sống
+        // cho đến khi callback fire. Không có ref này, IL2CPP GC thu proxy trước khi
+        // GMA native gọi onInitializationComplete → callback im lặng → timeout.
+        private static Action<GMA.InitializationStatus> _initCallbackRef;
 
         private void InitializeMobileAds(MediationConfig config, Action<bool> onComplete)
         {
@@ -84,11 +97,14 @@ namespace LSDK.Mediation.AdMob
             }
             GMA.MobileAds.SetRequestConfiguration(request);
 
-            GMA.MobileAds.Initialize(status =>
+            _initCallbackRef = status =>
             {
+                _initCallbackRef = null; // giải phóng sau khi đã fire
                 IsInitialized = true;
                 onComplete?.Invoke(true);
-            });
+            };
+
+            GMA.MobileAds.Initialize(_initCallbackRef);
         }
 
         // ───────────────────────── Consent ─────────────────────────
