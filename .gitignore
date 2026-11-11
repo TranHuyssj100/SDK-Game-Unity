@@ -75,8 +75,8 @@ mono_crash.*
 *.aab
 *.unitypackage
 *.unitypackage.meta
-!Assets/SDK/Mediation/ThirdParty/GoogleMobileAds-v11.6.0.unitypackage
-!Assets/SDK/Mediation/ThirdParty/GoogleMobileAds-v11.6.0.unitypackage.meta
+!/[Aa]ssets/SDK/**/[Tt]hird[Pp]arty/*.unitypackage
+!/[Aa]ssets/SDK/**/[Tt]hird[Pp]arty/*.unitypackage.meta
 *.app
 
 # Crashlytics generated file
