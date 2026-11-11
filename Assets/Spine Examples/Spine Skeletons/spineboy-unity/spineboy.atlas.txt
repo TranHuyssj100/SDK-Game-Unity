@@ -1,0 +1,57 @@
+spineboy.png
+	size: 1024, 1024
+	filter: Linear, Linear
+eye_indifferent
+	bounds: 330, 530, 93, 89
+eye_surprised
+	bounds: 235, 530, 93, 89
+front_bracer
+	bounds: 956, 454, 58, 80
+front_fist_closed
+	bounds: 425, 457, 75, 82
+front_fist_open
+	bounds: 727, 466, 86, 87
+front_foot
+	bounds: 2, 550, 126, 69
+front_foot_bend1
+	bounds: 837, 578, 128, 70
+front_foot_bend2
+	bounds: 727, 555, 108, 93
+front_shin
+	bounds: 566, 537, 82, 184
+front_thigh
+	bounds: 967, 635, 48, 112
+front_upper_arm
+	bounds: 967, 536, 54, 97
+goggles
+	bounds: 739, 855, 261, 166
+gun
+	bounds: 739, 650, 210, 203
+head
+	bounds: 466, 723, 271, 298
+mouth_grind
+	bounds: 117, 475, 93, 59
+mouth_oooo
+	bounds: 597, 476, 93, 59
+mouth_smile
+	bounds: 502, 476, 93, 59
+muzzle
+	bounds: 2, 621, 462, 400
+neck
+	bounds: 425, 578, 36, 41
+rear_bracer
+	bounds: 261, 456, 56, 72
+rear_foot
+	bounds: 2, 488, 113, 60
+rear_foot_bend1
+	bounds: 837, 510, 117, 66
+rear_foot_bend2
+	bounds: 130, 536, 103, 83
+rear_shin
+	bounds: 650, 543, 75, 178
+rear_thigh
+	bounds: 951, 749, 65, 104
+rear_upper_arm
+	bounds: 212, 441, 47, 87
+torso
+	bounds: 466, 541, 98, 180

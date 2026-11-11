@@ -1,0 +1,92 @@
+spineboy-pro.png
+	size: 2048, 1024
+	filter: Linear, Linear
+crosshair
+	bounds: 1873, 314, 89, 89
+dust01
+	bounds: 1683, 89, 96, 73
+dust02
+	bounds: 1873, 224, 86, 88
+dust03
+	bounds: 867, 243, 62, 52
+eye-indifferent
+	bounds: 1889, 405, 93, 89
+eye-surprised
+	bounds: 1953, 496, 93, 89
+front-bracer
+	bounds: 1889, 502, 58, 80
+front-fist-closed
+	bounds: 1961, 215, 75, 82
+front-fist-open
+	bounds: 1873, 135, 86, 87
+front-foot
+	bounds: 1897, 64, 126, 69
+front-shin
+	bounds: 1889, 584, 82, 184
+front-thigh
+	bounds: 1989, 844, 48, 112
+front-upper-arm
+	bounds: 1019, 499, 54, 97
+goggles
+	bounds: 731, 34, 261, 166
+	rotate: 90
+gun
+	bounds: 2, 88, 210, 203
+head
+	bounds: 917, 2, 271, 298
+	rotate: 180
+hoverboard-board
+	bounds: 1189, 53, 492, 152
+hoverboard-thruster
+	bounds: 414, 227, 60, 64
+hoverglow-small
+	bounds: 1298, 191, 274, 75
+mouth-grind
+	bounds: 214, 32, 93, 59
+mouth-oooo
+	bounds: 1518, 50, 93, 59
+mouth-smile
+	bounds: 1423, 55, 93, 59
+muzzle-glow
+	bounds: 214, 93, 198, 198
+muzzle-ring
+	bounds: 2, 747, 49, 209
+muzzle01
+	bounds: 1077, 607, 542, 349
+muzzle02
+	bounds: 1077, 268, 540, 337
+muzzle03
+	bounds: 52, 293, 663, 425
+	rotate: 90
+muzzle04
+	bounds: 479, 598, 596, 358
+muzzle05
+	bounds: 479, 297, 538, 299
+neck
+	bounds: 2, 615, 36, 41
+portal-bg
+	bounds: 1621, 422, 266, 266
+portal-flare1
+	bounds: 1310, 54, 111, 60
+portal-flare2
+	bounds: 1781, 72, 114, 61
+portal-flare3
+	bounds: 1180, 207, 115, 59
+portal-shade
+	bounds: 1621, 690, 266, 266
+portal-streaks1
+	bounds: 1619, 164, 252, 256
+portsl-streaks2
+	bounds: 479, 46, 250, 249
+rear-bracer
+	bounds: 1984, 422, 56, 72
+rear-foot
+	bounds: 309, 31, 113, 60
+rear-shin
+	bounds: 1971, 632, 75, 178
+rear-thigh
+	bounds: 1964, 299, 65, 104
+rear-upper-arm
+	bounds: 2, 658, 47, 87
+torso
+	bounds: 1889, 776, 98, 180
