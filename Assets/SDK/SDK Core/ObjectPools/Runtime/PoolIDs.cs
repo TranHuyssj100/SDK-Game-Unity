@@ -1,4 +1,4 @@
-namespace SDK.ObjectPool
+namespace LSDK.Core.ObjectPools
 {
     public static class PoolIDs
     {

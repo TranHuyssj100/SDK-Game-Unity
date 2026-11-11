@@ -1,0 +1,16 @@
+{
+    "name": "LSDK.ObjectPools",
+    "rootNamespace": "",
+    "references": [
+        "GUID:c945643b4ef654747a3d43109fc6ad2e"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

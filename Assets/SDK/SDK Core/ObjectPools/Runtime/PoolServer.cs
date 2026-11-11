@@ -1,7 +1,7 @@
 using UnityEngine;
-using SDK.Core;
+using LSDK.Core.Base;
 using System.Collections.Generic;
-namespace SDK.ObjectPool
+namespace LSDK.Core.ObjectPools
 {
     public class PoolServer : SingletonBehaviour<PoolServer>
     {

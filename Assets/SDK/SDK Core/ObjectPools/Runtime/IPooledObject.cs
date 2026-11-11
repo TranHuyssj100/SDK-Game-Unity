@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace SDK.ObjectPool
+namespace LSDK.Core.ObjectPools
 {
     public interface IPooledObject
     {

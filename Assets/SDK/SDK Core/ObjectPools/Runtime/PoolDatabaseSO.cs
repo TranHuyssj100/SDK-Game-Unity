@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Data.Common;
 
-namespace SDK.ObjectPool
+namespace LSDK.Core.ObjectPools
 {
     [CreateAssetMenu(fileName = "PoolDatabase", menuName = "SDK/Scriptable Object/Pool Database")]
     public class PoolDatabaseSO : ScriptableObject
