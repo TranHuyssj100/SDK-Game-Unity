@@ -1,0 +1,14 @@
+{
+  "name": "LSDK.UISystem.Editor",
+  "rootNamespace": "LSDK.UISystem.EditorTools",
+  "references": [ "LSDK.UISystem", "UnityEngine.UI" ],
+  "includePlatforms": [ "Editor" ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

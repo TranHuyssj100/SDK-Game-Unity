@@ -1,0 +1,9 @@
+{
+  "name": "com.lsdk.uisystem",
+  "version": "1.0.0",
+  "displayName": "LSDK UI System",
+  "description": "UI stack system (Screen/Popup/Overlay layers), DOTween animation, ScriptableObject UI registry with auto-generated enum.",
+  "unity": "2021.3",
+  "keywords": [ "ui", "popup", "dotween", "lsdk" ],
+  "author": { "name": "LSDK" }
+}

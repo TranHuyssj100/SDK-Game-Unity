@@ -1,0 +1,14 @@
+{
+  "name": "LSDK.UISystem",
+  "rootNamespace": "LSDK.UISystem",
+  "references": [ "UnityEngine.UI" ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": [ "DOTween.dll" ],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
