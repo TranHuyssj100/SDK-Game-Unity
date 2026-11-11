@@ -12,10 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e8dd94d69194cf4caf65cecc40fcf9a, type: 3}
   m_Name: PoolDatabase
   m_EditorClassIdentifier: 
-  _entries:
-  - _id: Test
-    _prefab: {fileID: 139455912568143685, guid: 1172eeddb52e04a4d868083a1cf47c54, type: 3}
-    _initialSize: 8
-    _maxSize: 0
-    _expandable: 1
+  entries:
+  - id: 1
+    name: Test
+    prefab: {fileID: 139455912568143685, guid: 1172eeddb52e04a4d868083a1cf47c54, type: 3}
+    initialSize: 8
+    maxSize: 0
+    expandable: 1
     collectionCheck: 1
+  nextId: 2
+  enumName: PoolId
+  enumNamespace: LSDK.Core.ObjectPools
+  outputFolder: Assets/LSDK/Generated
+  autoGenerate: 1
+  generatedPath: Assets/LSDK/Generated/PoolId.cs

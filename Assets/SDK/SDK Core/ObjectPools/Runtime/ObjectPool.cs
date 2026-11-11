@@ -7,7 +7,7 @@ namespace LSDK.Core.ObjectPools
 {
     public class ObjectPool : IObjectPool
     {
-        private readonly PoolEntry _entry;
+        private readonly PoolDatabaseSO.Entry _entry;
         private readonly Transform _container;
         private readonly Queue<GameObject> _inactive = new Queue<GameObject>();
         private readonly HashSet<GameObject> _inactiveSet = new HashSet<GameObject>();
@@ -17,12 +17,12 @@ namespace LSDK.Core.ObjectPools
 
         private int _created;
 
-        public string Id => _entry.Id;
+        public int Id => _entry.id;
         public GameObject Prefab => _entry.Prefab;
         public int CountInActive => _inactive.Count;
         public int CountActive => _inactiveSet.Count;
 
-        public ObjectPool(PoolEntry entry, Transform container)
+        public ObjectPool(PoolDatabaseSO.Entry entry, Transform container)
         {
             _entry = entry;
             _container = container;
@@ -31,13 +31,14 @@ namespace LSDK.Core.ObjectPools
 
         public GameObject GetObject()
         {
-            GameObject go = _inactive.Count > 0 ? _inactive.Dequeue() : CreateNew();
+            GameObject go = _inactive.Count > 0 ? Dequeue() : CreateNew();
             if (go == null)
             {
                 Debug.LogError($"Failed to create new object for pool {Id}");
                 return null;
             }
             go.SetActive(true);
+            NotifyGet(go);
             return go;
         }
         public int InitPool(int size, GameObject prefab)
@@ -161,6 +162,6 @@ namespace LSDK.Core.ObjectPools
     }
     public sealed class PoolInstance : MonoBehaviour
     {
-        public string PoolId;
+        public int PoolId;
     }
 }

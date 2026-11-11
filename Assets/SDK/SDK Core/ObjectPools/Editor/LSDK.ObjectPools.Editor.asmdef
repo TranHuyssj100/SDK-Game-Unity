@@ -1,0 +1,18 @@
+{
+    "name": "LSDK.ObjectPools.Editor",
+    "rootNamespace": "LSDK.Core.ObjectPools.EditorTools",
+    "references": [
+        "LSDK.ObjectPools"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

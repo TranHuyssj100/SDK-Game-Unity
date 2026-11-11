@@ -1,0 +1,17 @@
+{
+    "name": "LSDK.Core",
+    "rootNamespace": "LSDK.Core",
+    "references": [
+        "LSDK.Gamedata.Runtime",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

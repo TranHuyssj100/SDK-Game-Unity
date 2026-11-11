@@ -1,0 +1,24 @@
+{
+    "name": "LSDK.Core.Editor",
+    "rootNamespace": "LSDK.Core.EditorTools",
+    "references": [
+        "LSDK.Core",
+        "LSDK.Gamedata.Runtime",
+        "LSDK.IAP.Runtime",
+        "LSDK.ObjectPools",
+        "LSDK.Core.Base",
+        "LSDK.UISystem.Editor",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

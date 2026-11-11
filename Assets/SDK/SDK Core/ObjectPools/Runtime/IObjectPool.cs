@@ -6,7 +6,7 @@ namespace LSDK.Core.ObjectPools
   public interface IObjectPool
   {
 
-    string Id { get; }
+    int Id { get; }
     GameObject Prefab { get; }
     int CountInActive { get; }
     int CountActive { get; }
