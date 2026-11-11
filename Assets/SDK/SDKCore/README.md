@@ -2,11 +2,19 @@
 
 Package `com.lsdk.core`. Một SDK gồm các module nhỏ, mỗi module một assembly. Namespace và tên asmdef giữ nguyên.
 
-Cài bằng Git URL:
+Cài bằng Git URL. Package Manager → dấu `+` → **Add package from git URL**:
 
 ```
-https://github.com/TranHuyssj100/SDK-Game-Unity.git?path=/Assets/SDK/SDK%20Core
+https://github.com/TranHuyssj100/SDK-Game-Unity.git?path=/Assets/SDK/SDK%20Core#Developer
 ```
+
+Hoặc thêm vào `Packages/manifest.json`:
+
+```json
+"com.lsdk.core": "https://github.com/TranHuyssj100/SDK-Game-Unity.git?path=/Assets/SDK/SDK%20Core#Developer"
+```
+
+`#Developer` là bắt buộc: `package.json` nằm trên nhánh `Developer`, còn nhánh mặc định của repo là `main`.
 
 `Mediation` không nằm trong package này. Folder đó vẫn ở `Assets/SDK/Mediation`.
 
