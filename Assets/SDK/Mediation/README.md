@@ -9,7 +9,7 @@ Version 1.0.0: tích hợp **Google AdMob**. Singleton + Coroutine, không phụ
    - Qua `.unitypackage`: tự thêm `LSDK_ADMOB` vào Scripting Define Symbols.
 2. Add package này (Package Manager → Add from git URL, hoặc copy vào `Packages/`).
 3. Điền **AdMob App ID** ở `Assets > Google Mobile Ads > Settings` (plugin yêu cầu, SDK không thay được).
-4. Menu `LSDK > Mediation > Create Config` → tạo `Assets/Resources/LSDK/MediationConfig.asset`.
+4. Menu `LSDK > Mediation > Create Config` → tạo `Assets/Resources/LSDK/Mediation/SO/MediationConfig.asset`.
 5. Điền ad unit id Android/iOS trong config. `useTestAds = true` thì dùng ad unit test của Google.
 
 ## Dùng

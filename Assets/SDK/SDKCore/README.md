@@ -5,13 +5,13 @@ Package `com.lsdk.core`. Một SDK gồm các module nhỏ, mỗi module một a
 Cài bằng Git URL. Package Manager → dấu `+` → **Add package from git URL**:
 
 ```
-https://github.com/TranHuyssj100/SDK-Game-Unity.git?path=/Assets/SDK/SDK%20Core#Developer
+https://github.com/TranHuyssj100/SDK-Game-Unity.git?path=/Assets/SDK/SDKCore#Developer
 ```
 
 Hoặc thêm vào `Packages/manifest.json`:
 
 ```json
-"com.lsdk.core": "https://github.com/TranHuyssj100/SDK-Game-Unity.git?path=/Assets/SDK/SDK%20Core#Developer"
+"com.lsdk.core": "https://github.com/TranHuyssj100/SDK-Game-Unity.git?path=/Assets/SDK/SDKCore#Developer"
 ```
 
 `#Developer` là bắt buộc: `package.json` nằm trên nhánh `Developer`, còn nhánh mặc định của repo là `main`.
@@ -27,9 +27,10 @@ Hoặc thêm vào `Packages/manifest.json`:
 | `ObjectPools` | `LSDK.ObjectPools` | `LSDK.Core.ObjectPools` |
 | `GameData` | `LSDK.Gamedata.Runtime` | `LSDK.GameData` |
 | `UISystem` | `LSDK.UISystem` | `LSDK.UISystem` |
+| `Loading` | `LSDK.Loading` | `LSDK.Loading` |
 | `IAP` | `LSDK.IAP.Runtime` | `LSDK.IAP` |
 
-`ObjectPools` tham chiếu `Base`. `IAP` tham chiếu `GameData`. Các module còn lại không tham chiếu lẫn nhau.
+`ObjectPools` tham chiếu `Base`. `IAP` tham chiếu `GameData`. `Loading` tham chiếu `UISystem`. Các module còn lại không tham chiếu lẫn nhau.
 
 ## Phụ thuộc ngoài
 
@@ -45,4 +46,4 @@ Trong Package Manager, import:
 - IAP GameData Integration (cần Default Modules)
 - IAP Button
 
-Hướng dẫn chi tiết: `IAP/README.md`, `UISystem/README.md`.
+Hướng dẫn chi tiết: `IAP/README.md`, `UISystem/README.md`, `Loading/README.md`.

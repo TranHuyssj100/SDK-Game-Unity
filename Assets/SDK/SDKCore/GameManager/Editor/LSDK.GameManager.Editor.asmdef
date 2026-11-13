@@ -1,0 +1,22 @@
+{
+    "name": "LSDK.GameManager.Editor",
+    "rootNamespace": "LSDK.GameManager.Editor",
+    "references": [
+        "LSDK.GameManager",
+        "LSDK.Core",
+        "LSDK.Loading",
+        "LSDK.UISystem",
+        "LSDK.Core.Base"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

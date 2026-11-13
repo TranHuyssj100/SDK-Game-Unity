@@ -1,0 +1,80 @@
+---
+description: Luật chung cho toàn bộ LSDK (namespace, cấu trúc, ràng buộc kỹ thuật, code style, workflow)
+alwaysApply: true
+---
+
+# LSDK – Luật chung
+
+## 1. Namespace (bắt buộc)
+- Namespace: `LSDK.<PackageName>`, PascalCase. VD: `LSDK.GameData`, `LSDK.IAP`, `LSDK.UISystem`, `LSDK.Mediation`.
+- Mọi file .cs phải nằm trong namespace. Không để class ở global namespace.
+- Code Editor: `LSDK.<PackageName>.Editor`. Sub-namespace theo folder khi cần: `LSDK.Mediation.AdMob`.
+- Tên asmdef = tên namespace.
+
+## 2. Cấu trúc package (UPM, mỗi module là 1 package độc lập)
+```
+<PackageRoot>/
+├── package.json          (name, displayName, version SemVer, unity, dependencies)
+├── README.md             (cách cài, cách dùng, ví dụ code)
+├── CHANGELOG.md
+├── Runtime/
+│   ├── LSDK.<PackageName>.asmdef
+│   └── ...
+├── Editor/
+│   ├── LSDK.<PackageName>.Editor.asmdef   (ref Runtime, chỉ platform Editor)
+│   └── ...
+└── Samples~/             (nếu cần)
+```
+- Code Editor-only không đặt trong Runtime.
+- Dependency giữa các package khai báo ở cả `package.json` và asmdef references. Cấm circular dependency.
+- Dependency bên thứ 3 optional (DOTween, Spine, AdMob...) dùng `versionDefines` trong asmdef, không hard-require.
+- Phải cài được qua Package Manager (git URL).
+
+## 3. Ràng buộc kỹ thuật (KHÔNG được vi phạm)
+- Dùng **Singleton + Coroutine**. CẤM VContainer, Zenject, UniTask, async/await kiểu UniTask.
+- Không tự thêm package/dependency mới khi chưa hỏi.
+- Module độc lập: giao tiếp qua interface hoặc `LSDK.Observer`, không gọi chéo trực tiếp class cụ thể giữa các module.
+- Không hard-code ID/key/đường dẫn của game cụ thể. SDK phải tái sử dụng cho nhiều game.
+- Config đưa vào ScriptableObject, không rải const trong logic.
+- Lưu dữ liệu persistent qua `LSDK.GameData` (JSON + PlayerPrefs), module khác không tự ghi PlayerPrefs riêng.
+- Singleton dùng base class chung ở `LSDK.Utils`, không viết lại singleton riêng từng module.
+- Asset loading đi qua wrapper Addressables của SDK.
+
+## 4. Code style
+- Class/method/property: PascalCase. Field private: `_camelCase`. Interface: `IName`. Const: PascalCase.
+- Một class public = một file, tên file trùng tên class.
+- `[SerializeField] private` thay cho public field. Dùng `[Tooltip]`/`[Header]` cho field hiển thị inspector.
+- XML doc (`///`) cho mọi API public.
+- Không `Find`/`FindObjectOfType`/`GetComponent` trong Update hay vòng lặp, cache lại.
+- Tránh alloc trong Update (string concat, LINQ, new List). Cache `WaitForSeconds`.
+- Log qua wrapper chung, prefix `[LSDK.<Module>]`. Không nuốt exception im lặng.
+
+## 5. Singleton & Coroutine
+- Singleton: xử lý duplicate instance, `DontDestroyOnLoad` nếu persistent, chặn tạo instance mới khi đang thoát app.
+- Không phụ thuộc thứ tự `Awake` giữa các singleton, dùng init rõ ràng hoặc event.
+- Coroutine: lưu handle `Coroutine` để stop/restart, dừng ở `OnDisable`/`OnDestroy`. Callback dùng `Action`/`Action<T>`.
+
+## 6. Workflow khi được yêu cầu tạo/sửa module
+1. Chốt `<PackageName>` và namespace trước khi viết code.
+2. Liệt kê cây file sẽ tạo (kèm đường dẫn), rồi viết từng file theo thứ tự dependency: Utils → data/interface → implementation → Editor.
+3. Luôn có đủ: `package.json`, asmdef (Runtime + Editor), README ngắn.
+4. Không tạo file thừa, không refactor ngoài phạm vi yêu cầu.
+5. Thiếu thông tin quan trọng thì hỏi 1 câu rồi mới làm, đừng đoán bừa. Có giả định thì nói rõ.
+
+## 7. Output
+- Code phải compile được trong Unity (đủ `using`, namespace, asmdef reference).
+- Mỗi file ghi đường dẫn ở đầu.
+- Giải thích ngắn gọn, đúng trọng tâm.
+
+## 8. Versioning & Git
+- SemVer cho từng package. Cập nhật `CHANGELOG.md` khi đổi API. Breaking change thì bump major.
+- Branch: `main` (release), `developer` (tích hợp), `Feature/<Name>`.
+- Commit: `<type>(<package>): <mô tả>` (feat/fix/refactor/docs).
+
+## 9. Checklist trước khi xong
+- [ ] Namespace đúng `LSDK.<PackageName>`
+- [ ] Không dùng VContainer/UniTask
+- [ ] asmdef + package.json đúng, không circular dependency
+- [ ] Editor code không lọt vào Runtime
+- [ ] Không hard-code theo game cụ thể
+- [ ] Có XML doc cho API public

@@ -8,7 +8,7 @@ namespace LSDK.Core
     /// <summary>
     /// Gốc của SDK Core. Gọi DontDestroyOnLoad một lần trên object này;
     /// Unity 6 bỏ qua DontDestroyOnLoad nếu gọi trên object con.
-    /// Con cần sống qua scene: GameDataManager, IAPManager, PoolServer, UIRoot, EventSystem.
+    /// Con cần sống qua scene: GameDataManager, IAPManager, PoolServer, UIRoot, EventSystem, LoadingManager.
     /// Observer là class static, không gắn lên GameObject.
     /// </summary>
     [DisallowMultipleComponent]

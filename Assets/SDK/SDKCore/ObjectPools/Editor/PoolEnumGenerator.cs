@@ -9,7 +9,7 @@ namespace LSDK.Core.ObjectPools.EditorTools
     public static class PoolEnumGenerator
     {
         public static string GetPath(PoolDatabaseSO db) =>
-            Path.Combine(db.outputFolder, Sanitize(db.enumName) + ".cs").Replace('\\', '/');
+            Path.Combine(PoolDatabaseSO.EnumOutputFolder, Sanitize(db.enumName) + ".cs").Replace('\\', '/');
 
         public static string Build(PoolDatabaseSO db)
         {
@@ -48,6 +48,12 @@ namespace LSDK.Core.ObjectPools.EditorTools
         public static void Generate(PoolDatabaseSO db)
         {
             if (db == null) return;
+            if (db.outputFolder != PoolDatabaseSO.EnumOutputFolder)
+            {
+                db.outputFolder = PoolDatabaseSO.EnumOutputFolder;
+                EditorUtility.SetDirty(db);
+            }
+
             string path = GetPath(db);
             if (!path.StartsWith("Assets/"))
             {

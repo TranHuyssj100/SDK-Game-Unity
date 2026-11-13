@@ -9,7 +9,7 @@ namespace LSDK.UISystem.EditorTools
     public static class UIEnumGenerator
     {
         public static string GetPath(UIRegistry r) =>
-            Path.Combine(r.outputFolder, Sanitize(r.enumName) + ".cs").Replace('\\', '/');
+            Path.Combine(UIRegistry.EnumOutputFolder, Sanitize(r.enumName) + ".cs").Replace('\\', '/');
 
         public static string Build(UIRegistry r)
         {
@@ -48,6 +48,12 @@ namespace LSDK.UISystem.EditorTools
         public static void Generate(UIRegistry r)
         {
             if (r == null) return;
+            if (r.outputFolder != UIRegistry.EnumOutputFolder)
+            {
+                r.outputFolder = UIRegistry.EnumOutputFolder;
+                EditorUtility.SetDirty(r);
+            }
+
             string path = GetPath(r);
             if (!path.StartsWith("Assets/"))
             {

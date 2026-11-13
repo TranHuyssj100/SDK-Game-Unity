@@ -35,7 +35,8 @@ namespace LSDK.Core.ObjectPools.EditorTools
             EditorGUILayout.LabelField("Enum Generation", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(_enumName);
             EditorGUILayout.PropertyField(_ns);
-            EditorGUILayout.PropertyField(_folder);
+            using (new EditorGUI.DisabledScope(true))
+                EditorGUILayout.PropertyField(_folder);
             EditorGUILayout.PropertyField(_auto, new GUIContent("Auto Generate"));
 
             serializedObject.ApplyModifiedProperties();

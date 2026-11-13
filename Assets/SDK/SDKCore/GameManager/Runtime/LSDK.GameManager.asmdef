@@ -1,0 +1,20 @@
+{
+    "name": "LSDK.GameManager",
+    "rootNamespace": "LSDK.GameManager",
+    "references": [
+        "LSDK.Core",
+        "LSDK.Observer.Runtime",
+        "LSDK.Loading",
+        "LSDK.UISystem",
+        "LSDK.Core.Base"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

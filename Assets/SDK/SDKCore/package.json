@@ -1,9 +1,9 @@
 {
     "name": "com.lsdk.core",
     "displayName": "LSDK Core",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "unity": "2022.3",
-    "description": "LSDK Core gộp Base, Observer, ObjectPools, GameData, UISystem và IAP. Mỗi module giữ assembly riêng.",
+    "description": "LSDK Core gộp Base, Observer, ObjectPools, GameData, UISystem, Loading, IAP và GameManager. Mỗi module giữ assembly riêng.",
     "dependencies": {
         "com.unity.purchasing": "5.4.3",
         "com.unity.services.core": "1.12.5",
@@ -12,7 +12,7 @@
     "repository": {
         "type": "git",
         "url": "git+https://github.com/TranHuyssj100/SDK-Game-Unity.git",
-        "directory": "Assets/SDK/SDK Core"
+        "directory": "Assets/SDK/SDKCore"
     },
     "publishConfig": {
         "registry": "https://npm.pkg.github.com/@tranhuyssj100"
@@ -28,6 +28,8 @@
         "GameData.meta",
         "UISystem",
         "UISystem.meta",
+        "Loading",
+        "Loading.meta",
         "IAP.meta",
         "IAP/Editor",
         "IAP/Editor.meta",
@@ -43,7 +45,9 @@
         "Runtime",
         "Runtime.meta",
         "Editor",
-        "Editor.meta"
+        "Editor.meta",
+        "GameManager",
+        "GameManager.meta"
     ],
     "samples": [
         {
@@ -70,6 +74,9 @@
         "Observer",
         "ObjectPool",
         "UISystem",
+        "Loading",
+        "GameManager",
+        "StateMachine",
         "upm",
         "sdk"
     ],

@@ -82,6 +82,46 @@ namespace LSDK.UISystem
             for (int i = _popups.Count - 1; i >= 0; i--) Close(_popups[i]);
         }
 
+        // Đóng screen và popup đang stack. Xóa khỏi stack trước khi hide
+        // để CloseRoutine không mở lại screen bên dưới (Loading cần màn che giữ nguyên).
+        public IEnumerator CloseStackedUiRoutine()
+        {
+            var pending = new List<UIPanel>(_popups.Count + _screens.Count);
+            for (int i = 0; i < _popups.Count; i++) AddUnique(pending, _popups[i]);
+            for (int i = 0; i < _screens.Count; i++) AddUnique(pending, _screens[i]);
+            _popups.Clear();
+            _screens.Clear();
+
+            for (int i = 0; i < pending.Count; i++)
+                yield return CloseWhenIdle(pending[i]);
+        }
+
+        static void AddUnique(List<UIPanel> list, UIPanel panel)
+        {
+            if (panel != null && !list.Contains(panel)) list.Add(panel);
+        }
+
+        IEnumerator CloseWhenIdle(UIPanel panel)
+        {
+            if (panel == null) yield break;
+
+            float guard = 0f;
+            while (panel != null && panel.IsTransitioning && guard < 8f)
+            {
+                guard += Time.unscaledDeltaTime;
+                yield return null;
+            }
+
+            if (panel != null && panel.IsOpen) Close(panel);
+
+            guard = 0f;
+            while (panel != null && (panel.IsOpen || panel.IsTransitioning) && guard < 8f)
+            {
+                guard += Time.unscaledDeltaTime;
+                yield return null;
+            }
+        }
+
         // Escape / nút Back: popup trên cùng trước, rồi tới screen (nếu còn screen bên dưới).
         public bool Back()
         {
@@ -101,6 +141,9 @@ namespace LSDK.UISystem
         }
 
         public bool IsOpen(Enum id) => _instances.TryGetValue(Convert.ToInt32(id), out var p) && p != null && p.IsOpen;
+
+        public bool Contains<T>() where T : UIPanel
+            => registry != null && registry.TryGetId(typeof(T), out _);
 
         public void Preload(Enum id) => GetOrCreate(Convert.ToInt32(id));
 

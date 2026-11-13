@@ -26,9 +26,9 @@ UIRoot              Canvas (ScreenSpaceOverlay) + CanvasScaler + UIManager
 
 ## Setup nhanh
 1. `LSDK > UI System > Create UI Root` → tạo UIRoot với 4 layer canvas và input blocker.
-2. `Assets > Create > LSDK > UI System > UI Registry`, kéo vào field `Registry` của UIManager.
+2. Tạo `UIRegistry` trong `Assets/Resources/LSDK/UI/SO` (`Assets > Create > LSDK > UI System > UI Registry`), kéo vào field `Registry` của UIManager.
 3. Mở Registry, kéo thả prefab UI (hoặc cả folder) vào khung drop → enum `UIId` tự generate
-   (mặc định `Assets/LSDK/Generated/UIId.cs`).
+   tại `Assets/Resources/LSDK/UI/EnumID/UIId.cs`.
 4. Prefab UI: script kế thừa `UIPanel`, thêm `UIAnimator`, chỉnh `Layer`.
 
 ## Dùng

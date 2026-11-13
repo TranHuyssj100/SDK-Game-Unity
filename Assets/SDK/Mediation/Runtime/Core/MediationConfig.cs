@@ -59,8 +59,8 @@ namespace LSDK.Mediation
     [CreateAssetMenu(fileName = "MediationConfig", menuName = "LSDK/Mediation/Config")]
     public sealed class MediationConfig : ScriptableObject
     {
-        /// <summary>Đường dẫn trong Resources (không có đuôi): Assets/Resources/LSDK/MediationConfig.asset</summary>
-        public const string ResourcePath = "LSDK/MediationConfig";
+        /// <summary>Đường dẫn trong Resources (không có đuôi): Assets/Resources/LSDK/Mediation/SO/MediationConfig.asset</summary>
+        public const string ResourcePath = "LSDK/Mediation/SO/MediationConfig";
 
         [Header("General")]
         [Tooltip("true = dùng ad unit test của Google. NHỚ tắt khi build release.")]

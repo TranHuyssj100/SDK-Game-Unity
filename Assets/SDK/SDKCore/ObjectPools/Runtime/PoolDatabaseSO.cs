@@ -31,9 +31,13 @@ namespace LSDK.Core.ObjectPools
         public List<Entry> entries = new List<Entry>();
         [HideInInspector] public int nextId = 1;
 
+        /// <summary>Thư mục cố định ghi enum. Không đổi theo game.</summary>
+        public const string EnumOutputFolder = "Assets/Resources/LSDK/ObjectPools/EnumID";
+
         public string enumName = "PoolId";
         public string enumNamespace = "LSDK.Core.ObjectPools";
-        public string outputFolder = "Assets/LSDK/Generated";
+        [Tooltip("Luôn ghi vào Assets/Resources/LSDK/ObjectPools/EnumID.")]
+        public string outputFolder = EnumOutputFolder;
         public bool autoGenerate = true;
         [HideInInspector] public string generatedPath;
 

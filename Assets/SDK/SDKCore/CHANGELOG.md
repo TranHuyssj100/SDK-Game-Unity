@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.1]
+
+- Thêm module Loading: chuyển scene và load asset dưới `LoadingPanel` của UISystem.
+
 ## [1.0.0]
 
 - Gộp Base, Observer, ObjectPools, GameData, UISystem và IAP vào package `com.lsdk.core`.

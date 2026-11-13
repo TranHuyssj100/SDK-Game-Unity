@@ -165,7 +165,7 @@ namespace LSDK.Mediation
         }
 
         // ───────────────────────── Init ─────────────────────────
-        /// <param name="config">null = load từ Resources/LSDK/MediationConfig.</param>
+        /// <param name="config">null = load từ Resources/LSDK/Mediation/SO/MediationConfig.</param>
         public void Initialize(MediationConfig config = null, Action<bool> onComplete = null)
         {
             if (IsInitialized)

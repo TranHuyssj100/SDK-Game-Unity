@@ -11,7 +11,7 @@ namespace LSDK.Mediation.EditorTools
 {
     public static class MediationConfigMenu
     {
-        private const string Dir = "Assets/Resources/LSDK";
+        private const string Dir = "Assets/Resources/LSDK/Mediation/SO";
         private const string AssetPath = Dir + "/MediationConfig.asset";
 
         private static readonly NamedBuildTarget[] Targets =
