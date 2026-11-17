@@ -58,6 +58,6 @@
     },
     "dotnet.defaultSolution": "SDK-Game-Unity.sln",
     "dotrush.roslyn.projectOrSolutionFiles": [
-        "d:\\Unity_Project\\SDK-Game-Unity\\SDK-Game-Unity.sln"
+        "SDK-Game-Unity.sln"
     ]
 }
