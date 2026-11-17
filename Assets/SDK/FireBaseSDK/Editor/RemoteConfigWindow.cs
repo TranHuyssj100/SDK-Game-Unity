@@ -24,6 +24,7 @@ namespace LSDK.Firebase.Editor
         private bool _waitingPopulate;
         private Vector2 _listScroll;
         private Vector2 _bodyScroll;
+        private bool _showJson = true;
 
         [MenuItem("Tools/LSDK/Firebase/Open Remote Config Window", false, 0)]
         public static void Open()
@@ -210,6 +211,7 @@ namespace LSDK.Firebase.Editor
                 EditorGUILayout.Space(6f);
 
                 DrawKeys();
+                DrawJson();
 
                 EditorGUILayout.EndScrollView();
             }
@@ -220,26 +222,28 @@ namespace LSDK.Firebase.Editor
             using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
             {
                 EditorGUILayout.LabelField("Key", EditorStyles.miniLabel);
-                EditorGUILayout.LabelField("Giá trị", EditorStyles.miniLabel, GUILayout.Width(160f));
+                EditorGUILayout.LabelField("Giá trị", EditorStyles.miniLabel);
                 GUILayout.Space(156f);
             }
 
-            FieldInfo[] fields = _module.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            bool any = false;
+            FieldInfo[] fields = SerializedFields(_module);
+            if (fields.Length == 0)
+            {
+                EditorGUILayout.HelpBox("Module này không có field [SerializeField].", MessageType.Info);
+                return;
+            }
+
             for (int i = 0; i < fields.Length; i++)
             {
                 FieldInfo field = fields[i];
-                if (!IsSerializedField(field)) continue;
-                any = true;
-
                 string firebaseKey = FirebaseKey(_module, field);
                 object value = field.GetValue(_module);
-                string valueText = value == null ? string.Empty : value.ToString();
+                string valueText = RemoteConfigJson.ToJson(value);
 
                 using (new EditorGUILayout.HorizontalScope())
                 {
                     EditorGUILayout.SelectableLabel(firebaseKey, EditorStyles.textField, GUILayout.Height(EditorGUIUtility.singleLineHeight));
-                    EditorGUILayout.SelectableLabel(valueText, EditorStyles.textField, GUILayout.Height(EditorGUIUtility.singleLineHeight), GUILayout.Width(160f));
+                    EditorGUILayout.SelectableLabel(valueText, EditorStyles.textField, GUILayout.Height(EditorGUIUtility.singleLineHeight));
 
                     if (GUILayout.Button("Copy Key", GUILayout.Width(72f)))
                     {
@@ -254,9 +258,27 @@ namespace LSDK.Firebase.Editor
                     }
                 }
             }
+        }
 
-            if (!any)
-                EditorGUILayout.HelpBox("Module này không có field [SerializeField].", MessageType.Info);
+        private void DrawJson()
+        {
+            EditorGUILayout.Space(6f);
+            _showJson = EditorGUILayout.Foldout(_showJson, "JSON preview", true);
+            if (!_showJson || _module == null) return;
+
+            string json = BuildModuleJson();
+            float height = Mathf.Clamp(LineCount(json) * EditorGUIUtility.singleLineHeight + 8f, 64f, 240f);
+            using (new EditorGUI.DisabledScope(true))
+                EditorGUILayout.TextArea(json, GUILayout.Height(height));
+        }
+
+        private string BuildModuleJson()
+        {
+            var map = new Dictionary<string, object>();
+            FieldInfo[] fields = SerializedFields(_module);
+            for (int i = 0; i < fields.Length; i++)
+                map[FirebaseKey(_module, fields[i])] = fields[i].GetValue(_module);
+            return RemoteConfigJson.ToJson(map, true);
         }
 
         private string SourceLabel()
@@ -292,6 +314,30 @@ namespace LSDK.Firebase.Editor
             if (typeof(Delegate).IsAssignableFrom(field.FieldType)) return false;
             if (field.IsPublic) return true;
             return field.IsDefined(typeof(SerializeField), false);
+        }
+
+        private static FieldInfo[] SerializedFields(RemoteConfigModule module)
+        {
+            FieldInfo[] fields = module.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            var list = new List<FieldInfo>(fields.Length);
+            for (int i = 0; i < fields.Length; i++)
+            {
+                if (IsSerializedField(fields[i])) list.Add(fields[i]);
+            }
+
+            return list.ToArray();
+        }
+
+        private static int LineCount(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return 1;
+            int count = 1;
+            for (int i = 0; i < text.Length; i++)
+            {
+                if (text[i] == '\n') count++;
+            }
+
+            return count;
         }
     }
 }

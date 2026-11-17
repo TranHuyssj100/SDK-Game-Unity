@@ -10,17 +10,17 @@ namespace LSDK.Firebase
 
         public static void Info(string message)
         {
-            Debug.Log(Tag + " " + message);
+            Debug.Log("<color=green>" + Tag + "</color>"+ " " + message);
         }
 
         public static void Warning(string message)
         {
-            Debug.LogWarning(Tag + " " + message);
+            Debug.LogWarning("<color=yellow>" + Tag + "</color>"+ " " + message);
         }
 
         public static void Error(string message)
         {
-            Debug.LogError(Tag + " " + message);
+            Debug.LogError("<color=red>" + Tag + "</color>"+ " " + message);
         }
 
         public static void Exception(Exception exception)

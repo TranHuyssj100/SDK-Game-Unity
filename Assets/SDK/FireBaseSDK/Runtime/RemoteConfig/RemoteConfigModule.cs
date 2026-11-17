@@ -1,6 +1,6 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Reflection;
 using Firebase.RemoteConfig;
 using UnityEngine;
@@ -88,6 +88,8 @@ namespace LSDK.Firebase
             if (value is int i) return (long)i;
             if (value is double d) return d;
             if (value is float f) return (double)f;
+            if (value is string) return value;
+            if (IsJsonCollection(value.GetType())) return RemoteConfigJson.ToJson(value);
             return value.ToString();
         }
 
@@ -100,6 +102,26 @@ namespace LSDK.Firebase
             if (t == typeof(int))      { field.SetValue(target, (int)cv.LongValue);         return; }
             if (t == typeof(double))   { field.SetValue(target, cv.DoubleValue);            return; }
             if (t == typeof(float))    { field.SetValue(target, (float)cv.DoubleValue);     return; }
+
+            if (!IsJsonCollection(t)) return;
+
+            object parsed;
+            if (RemoteConfigJson.TryConvert(cv.StringValue, t, out parsed))
+            {
+                field.SetValue(target, parsed);
+                return;
+            }
+
+            FirebaseLog.Warning("Không đọc được JSON của '" + field.Name + "': " + cv.StringValue);
+        }
+
+        private static bool IsJsonCollection(Type type)
+        {
+            if (type == null || type == typeof(string)) return false;
+            if (typeof(IDictionary).IsAssignableFrom(type)) return true;
+            if (type.IsArray) return true;
+            if (typeof(IList).IsAssignableFrom(type)) return true;
+            return false;
         }
     }
 }

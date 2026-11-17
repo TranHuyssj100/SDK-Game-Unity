@@ -1,7 +1,7 @@
 {
   "name": "com.lsdk.firebase",
   "displayName": "LSDK Firebase",
-  "version": "1.2.0",
+  "version": "1.1.2",
   "unity": "2022.3",
   "description": "Wrapper Firebase Unity SDK: Analytics, Auth, Crashlytics, Installations, Messaging, Remote Config. Singleton + Coroutine.",
   "keywords": ["lsdk", "firebase", "analytics", "auth", "crashlytics", "remote-config", "messaging"],
