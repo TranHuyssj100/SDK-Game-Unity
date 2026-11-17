@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "302427634233",
+    "project_id": "lsdk-unity",
+    "storage_bucket": "lsdk-unity.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:302427634233:android:ac1bcc264abaa186546be8",
+        "android_client_info": {
+          "package_name": "LSDK.LewCompany"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDPiVImn0Lq4q4Rdd5ydqwB2QOQ_XNfvI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

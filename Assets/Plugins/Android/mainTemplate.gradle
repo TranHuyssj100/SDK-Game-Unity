@@ -10,7 +10,24 @@ dependencies {
     implementation 'androidx.fragment:fragment:1.7.1' // Assets/GoogleMobileAds/Editor/GoogleMobileAdsDependencies.xml:22
     implementation 'androidx.lifecycle:lifecycle-process:2.6.2' // Assets/GoogleMobileAds/Editor/GoogleMobileAdsDependencies.xml:17
     implementation 'com.google.android.gms:play-services-ads:25.5.0' // Assets/GoogleMobileAds/Editor/GoogleMobileAdsDependencies.xml:7
+    implementation 'com.google.android.gms:play-services-base:18.11.1' // Assets/Firebase/Editor/AppDependencies.xml:16
     implementation 'com.google.android.ump:user-messaging-platform:4.0.0' // Assets/GoogleMobileAds/Editor/GoogleUmpDependencies.xml:7
+    implementation 'com.google.firebase:firebase-analytics:24.0.0' // Assets/Firebase/Editor/RemoteConfigDependencies.xml:14
+    implementation 'com.google.firebase:firebase-analytics-unity:14.1.0' // Assets/Firebase/Editor/AnalyticsDependencies.xml:17
+    implementation 'com.google.firebase:firebase-app-unity:14.1.0' // Assets/Firebase/Editor/AppDependencies.xml:21
+    implementation 'com.google.firebase:firebase-auth:25.0.0' // Assets/Firebase/Editor/AuthDependencies.xml:12
+    implementation 'com.google.firebase:firebase-auth-unity:14.1.0' // Assets/Firebase/Editor/AuthDependencies.xml:19
+    implementation 'com.google.firebase:firebase-common:23.0.0' // Assets/Firebase/Editor/AppDependencies.xml:12
+    implementation 'com.google.firebase:firebase-config:24.0.1' // Assets/Firebase/Editor/RemoteConfigDependencies.xml:12
+    implementation 'com.google.firebase:firebase-config-unity:14.1.0' // Assets/Firebase/Editor/RemoteConfigDependencies.xml:19
+    implementation 'com.google.firebase:firebase-crashlytics-ndk:21.0.1' // Assets/Firebase/Editor/CrashlyticsDependencies.xml:12
+    implementation 'com.google.firebase:firebase-crashlytics-unity:14.1.0' // Assets/Firebase/Editor/CrashlyticsDependencies.xml:19
+    implementation 'com.google.firebase:firebase-iid:21.1.0' // Assets/Firebase/Editor/MessagingDependencies.xml:16
+    implementation 'com.google.firebase:firebase-installations:20.0.0' // Assets/Firebase/Editor/InstallationsDependencies.xml:12
+    implementation 'com.google.firebase:firebase-installations-unity:14.1.0' // Assets/Firebase/Editor/InstallationsDependencies.xml:19
+    implementation 'com.google.firebase:firebase-messaging:26.0.1' // Assets/Firebase/Editor/MessagingDependencies.xml:12
+    implementation 'com.google.firebase:firebase-messaging-unity:14.1.0' // Assets/Firebase/Editor/MessagingDependencies.xml:23
+    implementation 'com.google.flatbuffers:flatbuffers-java:1.12.0' // Assets/Firebase/Editor/MessagingDependencies.xml:18
 // Android Resolver Dependencies End
 **DEPS**}
 
