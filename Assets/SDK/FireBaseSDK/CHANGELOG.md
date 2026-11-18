@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.5
+- Đồng bộ version phát hành với LSDK `1.1.5`. Nội dung Remote Config JSON nằm ở `1.1.3`.
+
 ## 1.1.3
 - `List` và `Dictionary` trên `RemoteConfigModule` gửi lên Firebase và đọc về bằng cùng một chuỗi JSON. Copy Value ra đúng chuỗi đó, ví dụ `[1,2,3]`.
 

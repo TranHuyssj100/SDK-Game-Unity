@@ -28,7 +28,7 @@ namespace LSDK.GameManager.Editor
             var existing = AssetDatabase.LoadAssetAtPath<GameManagerConfig>(ConfigPath);
             if (existing != null)
             {
-                Debug.Log($"[LSDK.GameManager] Config đã tồn tại tại: {ConfigPath}");
+                DebugUtil.Info("Config đã tồn tại tại: " + ConfigPath);
                 Selection.activeObject = existing;
                 EditorGUIUtility.PingObject(existing);
                 return;
@@ -40,7 +40,7 @@ namespace LSDK.GameManager.Editor
 
             Selection.activeObject = config;
             EditorGUIUtility.PingObject(config);
-            Debug.Log($"[LSDK.GameManager] Đã tạo GameManagerConfig tại: {ConfigPath}");
+            DebugUtil.Info("Đã tạo GameManagerConfig tại: " + ConfigPath);
         }
 
         // ── Create GameObject ────────────────────────────────────
@@ -52,7 +52,7 @@ namespace LSDK.GameManager.Editor
             var existing = Object.FindObjectOfType<GameManager>();
             if (existing != null)
             {
-                Debug.Log("[LSDK.GameManager] GameManager đã có trong scene.");
+                DebugUtil.Info("GameManager đã có trong scene.");
                 Selection.activeGameObject = existing.gameObject;
                 return;
             }
@@ -67,16 +67,16 @@ namespace LSDK.GameManager.Editor
                 var serialized = new SerializedObject(gm);
                 serialized.FindProperty("_config").objectReferenceValue = config;
                 serialized.ApplyModifiedProperties();
-                Debug.Log("[LSDK.GameManager] Đã gán GameManagerConfig vào GameManager.");
+                DebugUtil.Info("Đã gán GameManagerConfig vào GameManager.");
             }
             else
             {
-                Debug.LogWarning($"[LSDK.GameManager] Chưa tìm thấy config tại '{ConfigPath}'. Chạy 'Create Config' trước, sau đó gán thủ công vào GameManager._config.");
+                DebugUtil.Warning("Chưa tìm thấy config tại '" + ConfigPath + "'. Chạy 'Create Config' trước, sau đó gán thủ công vào GameManager._config.");
             }
 
             Undo.RegisterCreatedObjectUndo(go, "Add GameManager");
             Selection.activeGameObject = go;
-            Debug.Log("[LSDK.GameManager] Đã thêm GameManager vào scene.");
+            DebugUtil.Info("Đã thêm GameManager vào scene.");
         }
 
         // ── Validate menus ───────────────────────────────────────

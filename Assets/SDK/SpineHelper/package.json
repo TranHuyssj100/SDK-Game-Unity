@@ -1,6 +1,6 @@
 {
   "name": "com.lsdk.spineanim",
-  "version": "1.0.0",
+  "version": "1.1.5",
   "displayName": "LSDK Spine Anim",
   "description": "Spine 4.3 helper: auto-list skins/animations, skin mixing, inspector preview, animation sequences. Namespace: LSDK.SpineAnim",
   "unity": "2021.3",

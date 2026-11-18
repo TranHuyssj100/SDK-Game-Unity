@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.5]
+
+- GameManager gọi flow qua `IGameDirector` và `GameDirector` để class kế thừa vẫn nhận callback từ state.
+- Log của GameManager đi qua `DebugUtil`.
+- State đang chạy hiện read-only trên inspector.
+
 ## [1.0.1]
 
 - Thêm module Loading: chuyển scene và load asset dưới `LoadingPanel` của UISystem.

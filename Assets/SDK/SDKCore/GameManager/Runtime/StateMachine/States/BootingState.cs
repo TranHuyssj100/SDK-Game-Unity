@@ -1,5 +1,4 @@
 // Assets/SDK/SDKCore/GameManager/Runtime/StateMachine/States/BootingState.cs
-using UnityEngine;
 using LSDK.Loading;
 
 namespace LSDK.GameManager
@@ -17,23 +16,30 @@ namespace LSDK.GameManager
 
         public void Enter(GameStateContext ctx)
         {
-            Debug.Log("[LSDK.GameManager] BootingState: Bắt đầu khởi động...");
+            DebugUtil.Info("BootingState: Bắt đầu khởi động...");
 
-            var gm      = GameManager.Instance;
-            var config  = gm.Config;
+            var gm = GameDirector.Current;
+            if (gm == null)
+            {
+                DebugUtil.Error("BootingState: chưa có GameManager.");
+                return;
+            }
+
+            var config = gm.Config;
+
             var menuScene = config != null ? config.mainMenuSceneName : "";
 
             if (string.IsNullOrWhiteSpace(menuScene))
             {
                 // Không có scene nào được cấu hình → chuyển thẳng MainMenu
-                Debug.LogWarning("[LSDK.GameManager] BootingState: mainMenuSceneName trống, chuyển thẳng sang MainMenu.");
+                DebugUtil.Warning("BootingState: mainMenuSceneName trống, chuyển thẳng sang MainMenu.");
                 gm.GoToMainMenu();
                 return;
             }
 
             if (LoadingManager.Instance == null)
             {
-                Debug.LogError("[LSDK.GameManager] BootingState: LoadingManager chưa có trong scene.");
+                DebugUtil.Error("BootingState: LoadingManager chưa có trong scene.");
                 return;
             }
 
@@ -42,7 +48,7 @@ namespace LSDK.GameManager
                 onCompleted: () => gm.GoToMainMenu(),
                 onFailed:    err =>
                 {
-                    Debug.LogError($"[LSDK.GameManager] BootingState: Load scene thất bại — {err}");
+                    DebugUtil.Error("BootingState: Load scene thất bại — " + err);
                 });
         }
 
@@ -50,7 +56,7 @@ namespace LSDK.GameManager
 
         public void Exit()
         {
-            Debug.Log("[LSDK.GameManager] BootingState: Xong.");
+            DebugUtil.Info("BootingState: Xong.");
         }
     }
 }

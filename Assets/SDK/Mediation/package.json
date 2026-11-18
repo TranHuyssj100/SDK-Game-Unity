@@ -1,7 +1,7 @@
 {
   "name": "com.lsdk.mediation",
   "displayName": "LSDK Mediation",
-  "version": "1.0.0",
+  "version": "1.1.5",
   "unity": "2021.3",
   "description": "Ad mediation layer for Unity: Banner, Interstitial, Rewarded, App Open. Multi-network via adapters (AdMob first).",
   "keywords": ["lsdk", "ads", "mediation", "admob"],

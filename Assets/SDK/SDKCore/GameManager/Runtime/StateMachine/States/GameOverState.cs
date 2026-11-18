@@ -1,5 +1,4 @@
 // Assets/SDK/SDKCore/GameManager/Runtime/StateMachine/States/GameOverState.cs
-using UnityEngine;
 using LSDK.Core.Observer;
 
 namespace LSDK.GameManager
@@ -22,7 +21,7 @@ namespace LSDK.GameManager
 
         public void Enter(GameStateContext ctx)
         {
-            Debug.Log($"[LSDK.GameManager] GameOverState: Level {ctx.LevelIndex} — Game Over.");
+            DebugUtil.Info("GameOverState: Level " + ctx.LevelIndex + " — Game Over.");
             Observer.Publish(GameEvents.OnGameOver,
                 new LevelEventData { LevelIndex = ctx.LevelIndex });
             // Mở GameOver UI: UIManager.Instance.Open<GameOverPopup>();
@@ -32,7 +31,7 @@ namespace LSDK.GameManager
 
         public void Exit()
         {
-            Debug.Log("[LSDK.GameManager] GameOverState: Xong.");
+            DebugUtil.Info("GameOverState: Xong.");
             // Đóng GameOver UI nếu chưa đóng: UIManager.Instance.Close<GameOverPopup>();
         }
     }

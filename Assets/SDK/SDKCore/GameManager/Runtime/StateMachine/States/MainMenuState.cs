@@ -1,6 +1,4 @@
 // Assets/SDK/SDKCore/GameManager/Runtime/StateMachine/States/MainMenuState.cs
-using UnityEngine;
-
 namespace LSDK.GameManager
 {
     /// <summary>
@@ -15,7 +13,7 @@ namespace LSDK.GameManager
 
         public void Enter(GameStateContext ctx)
         {
-            Debug.Log("[LSDK.GameManager] MainMenuState: Vào Main Menu.");
+            DebugUtil.Info("MainMenuState: Vào Main Menu.");
             // Mở UI MainMenu nếu có: UIManager.Instance.Open<MainMenuPanel>();
         }
 
@@ -23,7 +21,7 @@ namespace LSDK.GameManager
 
         public void Exit()
         {
-            Debug.Log("[LSDK.GameManager] MainMenuState: Rời Main Menu.");
+            DebugUtil.Info("MainMenuState: Rời Main Menu.");
             // Đóng UI MainMenu nếu cần: UIManager.Instance.Close<MainMenuPanel>();
         }
     }

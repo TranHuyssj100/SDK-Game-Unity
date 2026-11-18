@@ -1,7 +1,6 @@
 // Assets/SDK/SDKCore/GameManager/Runtime/StateMachine/GameStateMachine.cs
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 using LSDK.Core.Observer;
 
 namespace LSDK.GameManager
@@ -51,12 +50,12 @@ namespace LSDK.GameManager
         {
             if (state == null)
             {
-                Debug.LogWarning("[LSDK.GameManager] Register: state is null, bỏ qua.");
+                DebugUtil.Warning("Register: state is null, bỏ qua.");
                 return;
             }
 
             if (_states.ContainsKey(state.StateType))
-                Debug.LogWarning($"[LSDK.GameManager] State '{state.StateType}' đã được đăng ký, ghi đè.");
+                DebugUtil.Warning("State '" + state.StateType + "' đã được đăng ký, ghi đè.");
 
             _states[state.StateType] = state;
         }
@@ -73,14 +72,14 @@ namespace LSDK.GameManager
         {
             if (!_states.TryGetValue(next, out var nextState))
             {
-                Debug.LogError($"[LSDK.GameManager] State '{next}' chưa được đăng ký. Gọi Register() trước.");
+                DebugUtil.Error("State '" + next + "' chưa được đăng ký. Gọi Register() trước.");
                 return;
             }
 
             // Không chuyển sang chính state đang active (tránh re-enter vô tình)
             if (CurrentState != null && CurrentState.StateType == next)
             {
-                Debug.LogWarning($"[LSDK.GameManager] Đang ở state '{next}' rồi, bỏ qua.");
+                DebugUtil.Warning("Đang ở state '" + next + "' rồi, bỏ qua.");
                 return;
             }
 
@@ -89,22 +88,22 @@ namespace LSDK.GameManager
             // --- Exit ---
             if (CurrentState != null)
             {
-                Debug.Log($"[LSDK.GameManager] Exit  ← {previous}");
+                DebugUtil.Info("Exit  ← " + previous);
                 try { CurrentState.Exit(); }
-                catch (Exception e) { Debug.LogException(e); }
+                catch (Exception e) { DebugUtil.Exception(e); }
             }
 
             // --- Swap ---
             CurrentState = nextState;
 
             // --- Enter ---
-            Debug.Log($"[LSDK.GameManager] Enter → {next}");
+            DebugUtil.Info("Enter → " + next);
             try { CurrentState.Enter(ctx ?? new GameStateContext()); }
-            catch (Exception e) { Debug.LogException(e); }
+            catch (Exception e) { DebugUtil.Exception(e); }
 
             // --- Notify ---
             try { OnStateChanged?.Invoke(previous, next); }
-            catch (Exception e) { Debug.LogException(e); }
+            catch (Exception e) { DebugUtil.Exception(e); }
 
             // Broadcast toàn cục qua Observer
             Observer.Publish(GameEvents.OnGameStateChanged,
@@ -120,7 +119,7 @@ namespace LSDK.GameManager
         public void Tick(float deltaTime)
         {
             try { CurrentState?.Tick(deltaTime); }
-            catch (Exception e) { Debug.LogException(e); }
+            catch (Exception e) { DebugUtil.Exception(e); }
         }
     }
 }

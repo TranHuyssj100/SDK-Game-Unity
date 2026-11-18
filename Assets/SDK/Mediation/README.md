@@ -1,7 +1,7 @@
 # LSDK Mediation (`LSDK.Mediation`)
 
 Quản lý quảng cáo Banner / Interstitial / Rewarded / App Open, nhiều network qua adapter.
-Version 1.0.0: tích hợp **Google AdMob**. Singleton + Coroutine, không phụ thuộc UniTask/VContainer.
+Version 1.1.5: tích hợp **Google AdMob**. Singleton + Coroutine, không phụ thuộc UniTask/VContainer.
 
 ## Cài đặt
 1. Cài Google Mobile Ads Unity plugin (v8+).

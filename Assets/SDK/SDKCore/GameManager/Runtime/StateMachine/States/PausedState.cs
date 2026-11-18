@@ -19,7 +19,7 @@ namespace LSDK.GameManager
         public void Enter(GameStateContext ctx)
         {
             Time.timeScale = 0f;
-            Debug.Log("[LSDK.GameManager] PausedState: Game đã Pause.");
+            DebugUtil.Info("PausedState: Game đã Pause.");
             Observer.Publish(GameEvents.OnGamePaused);
             // Mở Pause UI: UIManager.Instance.Open<PausePopup>();
         }
@@ -33,7 +33,7 @@ namespace LSDK.GameManager
         public void Exit()
         {
             Time.timeScale = 1f;
-            Debug.Log("[LSDK.GameManager] PausedState: Game đã Resume.");
+            DebugUtil.Info("PausedState: Game đã Resume.");
             Observer.Publish(GameEvents.OnGameResumed);
             // Đóng Pause UI: UIManager.Instance.Close<PausePopup>();
         }

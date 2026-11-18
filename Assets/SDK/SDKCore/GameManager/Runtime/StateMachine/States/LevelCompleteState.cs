@@ -1,5 +1,4 @@
 // Assets/SDK/SDKCore/GameManager/Runtime/StateMachine/States/LevelCompleteState.cs
-using UnityEngine;
 using LSDK.Core.Observer;
 
 namespace LSDK.GameManager
@@ -22,7 +21,7 @@ namespace LSDK.GameManager
 
         public void Enter(GameStateContext ctx)
         {
-            Debug.Log($"[LSDK.GameManager] LevelCompleteState: Level {ctx.LevelIndex} hoàn thành!");
+            DebugUtil.Info("LevelCompleteState: Level " + ctx.LevelIndex + " hoàn thành!");
             Observer.Publish(GameEvents.OnLevelCompleted,
                 new LevelEventData { LevelIndex = ctx.LevelIndex });
             // Mở Win UI: UIManager.Instance.Open<LevelCompletePopup>();
@@ -32,7 +31,7 @@ namespace LSDK.GameManager
 
         public void Exit()
         {
-            Debug.Log("[LSDK.GameManager] LevelCompleteState: Xong.");
+            DebugUtil.Info("LevelCompleteState: Xong.");
             // Đóng Win UI nếu chưa đóng: UIManager.Instance.Close<LevelCompletePopup>();
         }
     }

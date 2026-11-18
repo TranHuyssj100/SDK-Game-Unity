@@ -32,14 +32,14 @@ namespace LSDK.GameManager
         public void Enter(GameStateContext ctx)
         {
             Time.timeScale = 1f;
-            Debug.Log($"[LSDK.GameManager] PlayingState: Level {ctx.LevelIndex} bắt đầu (retry={ctx.IsRetry}).");
+            DebugUtil.Info("PlayingState: Level " + ctx.LevelIndex + " bắt đầu (retry=" + ctx.IsRetry + ").");
 
             // Đăng ký lắng nghe request từ gameplay
             Observer.Subscribe(GameEvents.RequestGameOver,      _onRequestGameOver);
             Observer.Subscribe(GameEvents.RequestLevelComplete, _onRequestLevelComplete);
 
             // Phát event để HUD, Analytics v.v. biết level bắt đầu
-            var config = GameManager.Instance != null ? GameManager.Instance.Config : null;
+            var config = GameDirector.Current != null ? GameDirector.Current.Config : null;
             if (config == null || config.publishLevelStartedEvent)
             {
                 Observer.Publish(GameEvents.OnLevelStarted,
@@ -57,21 +57,21 @@ namespace LSDK.GameManager
             // Hủy đăng ký trước khi rời state để không nhận event thừa
             Observer.Unsubscribe(GameEvents.RequestGameOver,      _onRequestGameOver);
             Observer.Unsubscribe(GameEvents.RequestLevelComplete, _onRequestLevelComplete);
-            Debug.Log("[LSDK.GameManager] PlayingState: Rời gameplay.");
+            DebugUtil.Info("PlayingState: Rời gameplay.");
         }
 
         // ── Handlers ────────────────────────────────────────────
 
         private void HandleRequestGameOver()
         {
-            if (GameManager.Instance != null)
-                GameManager.Instance.TriggerGameOver();
+            if (GameDirector.Current != null)
+                GameDirector.Current.TriggerGameOver();
         }
 
         private void HandleRequestLevelComplete()
         {
-            if (GameManager.Instance != null)
-                GameManager.Instance.TriggerLevelComplete();
+            if (GameDirector.Current != null)
+                GameDirector.Current.TriggerLevelComplete();
         }
     }
 }
