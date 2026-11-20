@@ -43,6 +43,12 @@ namespace LSDK.Core.ObjectPools
             return GetById(Convert.ToInt32(id));
         }
 
+        /// <summary>Lấy object theo id số trong PoolDatabase.</summary>
+        public GameObject GetObject(int id)
+        {
+            return GetById(id);
+        }
+
         public T GetObject<T>(Enum id) where T : Component
         {
             var obj = GetObject(id);
@@ -76,6 +82,9 @@ namespace LSDK.Core.ObjectPools
         }
 
         public bool HasPool(Enum id) => id != null && _dictPools.ContainsKey(Convert.ToInt32(id));
+
+        /// <summary>true khi database có pool với id số này.</summary>
+        public bool HasPool(int id) => id > 0 && _dictPools.ContainsKey(id);
 
         GameObject GetById(int id)
         {

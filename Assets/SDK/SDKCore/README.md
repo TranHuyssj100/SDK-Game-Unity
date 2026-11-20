@@ -16,7 +16,7 @@ Hoặc thêm vào `Packages/manifest.json`:
 
 `#Developer` là bắt buộc: `package.json` nằm trên nhánh `Developer`, còn nhánh mặc định của repo là `main`.
 
-`Mediation` không nằm trong package này. Folder đó vẫn ở `Assets/SDK/Mediation`.
+`Mediation` và `CurencyManager` không nằm trong package này. Hai folder đó vẫn ở `Assets/SDK/Mediation` và `Assets/SDK/CurencyManager`. `CurencyManager` là package `com.lsdk.currency`, phụ thuộc `com.lsdk.core`.
 
 ## Module
 
@@ -47,4 +47,4 @@ Trong Package Manager, import:
 - IAP GameData Integration (cần Default Modules)
 - IAP Button
 
-Hướng dẫn chi tiết: `IAP/README.md`, `UISystem/README.md`, `Loading/README.md`, `ToastSystem/README.md`.
+Hướng dẫn chi tiết: `IAP/README.md`, `UISystem/README.md`, `Loading/README.md`, `ToastSystem/README.md`. Currency: `Assets/SDK/CurencyManager/README.md`.

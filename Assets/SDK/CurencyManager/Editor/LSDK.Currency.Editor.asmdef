@@ -1,0 +1,24 @@
+{
+    "name": "LSDK.Currency.Editor",
+    "rootNamespace": "LSDK.Currency.Editor",
+    "references": [
+        "LSDK.Currency",
+        "LSDK.UISystem",
+        "LSDK.UISystem.Editor",
+        "LSDK.ObjectPools",
+        "LSDK.ObjectPools.Editor",
+        "UnityEngine.UI",
+        "Unity.TextMeshPro"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

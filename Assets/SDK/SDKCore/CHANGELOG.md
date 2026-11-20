@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.3.2]
+
+- `SingletonBehaviour`: `Instance` trả null khi app đang thoát, không tạo object mới lúc dọn scene. Thêm `HasInstance`.
+- `SingletonBehaviour`: hủy bản trùng không còn xóa tham chiếu của bản đang chạy.
+- Currency tách ra package `com.lsdk.currency` ở `Assets/SDK/CurencyManager`, phụ thuộc package này.
+
+## [1.3.1]
+
+- Currency: menu `Tools/LSDK/Currency/Create Currency UI` tạo thanh tiền và đăng ký `CurrencyPanel` vào UISystem.
+
+## [1.3.0]
+
+- Thêm module Currency. Mỗi dòng trong `CurrencyCatalog` là một ví. Dòng bật hồi có trần, một mốc hồi, bắt kịp offline và unlimited chặn tiêu.
+- Catalog mẫu: Coin, Heart trần 5 mỗi 1800 giây, Diamond.
+
 ## [1.2.0]
 
 - Thêm module ToastSystem. Toast nằm trên layer Overlay của UISystem, từng dòng lấy từ ObjectPool. Bốn loại: Normal trắng, Success xanh, Warning vàng, Error đỏ.

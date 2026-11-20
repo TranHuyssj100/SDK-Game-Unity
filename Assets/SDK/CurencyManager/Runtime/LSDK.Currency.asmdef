@@ -1,0 +1,23 @@
+{
+    "name": "LSDK.Currency",
+    "rootNamespace": "LSDK.Currency",
+    "references": [
+        "LSDK.Gamedata.Runtime",
+        "LSDK.Core.Base",
+        "LSDK.ObjectPools",
+        "LSDK.UISystem",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "DOTween.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

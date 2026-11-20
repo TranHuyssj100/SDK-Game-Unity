@@ -1,0 +1,19 @@
+{
+  "name": "com.lsdk.currency",
+  "displayName": "LSDK Currency",
+  "version": "1.2.0",
+  "unity": "2022.3",
+  "description": "Ví tiền cho LSDK. Mỗi dòng trong CurrencyCatalog là một loại tiền, có thể bật hồi theo thời gian, trần và unlimited. Namespace LSDK.Currency.",
+  "keywords": ["lsdk", "currency", "wallet", "regen"],
+  "author": {
+    "name": "LSDK"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TranHuyssj100/SDK-Game-Unity.git",
+    "directory": "Assets/SDK/CurencyManager"
+  },
+  "dependencies": {
+    "com.lsdk.core": "1.3.2"
+  }
+}

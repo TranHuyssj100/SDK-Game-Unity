@@ -1,7 +1,7 @@
 {
     "name": "com.lsdk.core",
     "displayName": "LSDK Core",
-    "version": "1.2.0",
+    "version": "1.3.2",
     "unity": "2022.3",
     "description": "LSDK Core gộp Base, Observer, ObjectPools, GameData, UISystem, ToastSystem, Loading, IAP và GameManager. Mỗi module giữ assembly riêng.",
     "dependencies": {
