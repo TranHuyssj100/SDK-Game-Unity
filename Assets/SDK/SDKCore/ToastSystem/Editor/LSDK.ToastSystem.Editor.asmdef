@@ -1,0 +1,22 @@
+{
+  "name": "LSDK.ToastSystem.Editor",
+  "rootNamespace": "LSDK.ToastSystem.Editor",
+  "references": [
+    "LSDK.ToastSystem",
+    "LSDK.UISystem",
+    "LSDK.UISystem.Editor",
+    "UnityEngine.UI",
+    "Unity.TextMeshPro"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

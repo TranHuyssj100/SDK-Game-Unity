@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.2.0]
+
+- Thêm module ToastSystem. Toast nằm trên layer Overlay của UISystem, từng dòng lấy từ ObjectPool. Bốn loại: Normal trắng, Success xanh, Warning vàng, Error đỏ.
+- Menu `Tools/LSDK/Toast/Create Toast Sample` tạo prefab mẫu và đăng ký vào UIRegistry.
+
 ## [1.1.5]
 
 - GameManager gọi flow qua `IGameDirector` và `GameDirector` để class kế thừa vẫn nhận callback từ state.

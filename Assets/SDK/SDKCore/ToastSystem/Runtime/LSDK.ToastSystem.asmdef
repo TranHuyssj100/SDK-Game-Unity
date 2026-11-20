@@ -1,0 +1,20 @@
+{
+  "name": "LSDK.ToastSystem",
+  "rootNamespace": "LSDK.ToastSystem",
+  "references": [
+    "LSDK.UISystem",
+    "LSDK.ObjectPools",
+    "Unity.TextMeshPro"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "DOTween.dll"
+  ],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

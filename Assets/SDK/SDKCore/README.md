@@ -27,10 +27,11 @@ Hoặc thêm vào `Packages/manifest.json`:
 | `ObjectPools` | `LSDK.ObjectPools` | `LSDK.Core.ObjectPools` |
 | `GameData` | `LSDK.Gamedata.Runtime` | `LSDK.GameData` |
 | `UISystem` | `LSDK.UISystem` | `LSDK.UISystem` |
+| `ToastSystem` | `LSDK.ToastSystem` | `LSDK.ToastSystem` |
 | `Loading` | `LSDK.Loading` | `LSDK.Loading` |
 | `IAP` | `LSDK.IAP.Runtime` | `LSDK.IAP` |
 
-`ObjectPools` tham chiếu `Base`. `IAP` tham chiếu `GameData`. `Loading` tham chiếu `UISystem`. Các module còn lại không tham chiếu lẫn nhau.
+`ObjectPools` tham chiếu `Base`. `IAP` tham chiếu `GameData`. `Loading` tham chiếu `UISystem`. `ToastSystem` tham chiếu `UISystem` và `ObjectPools`. Các module còn lại không tham chiếu lẫn nhau.
 
 ## Phụ thuộc ngoài
 
@@ -46,4 +47,4 @@ Trong Package Manager, import:
 - IAP GameData Integration (cần Default Modules)
 - IAP Button
 
-Hướng dẫn chi tiết: `IAP/README.md`, `UISystem/README.md`, `Loading/README.md`.
+Hướng dẫn chi tiết: `IAP/README.md`, `UISystem/README.md`, `Loading/README.md`, `ToastSystem/README.md`.
