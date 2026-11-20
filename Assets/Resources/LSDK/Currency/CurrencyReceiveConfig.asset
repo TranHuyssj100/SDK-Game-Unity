@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ece1fa8a44a14c29a5e972a36c40bca, type: 3}
+  m_Name: CurrencyReceiveConfig
+  m_EditorClassIdentifier: LSDK.Currency::LSDK.Currency.CurrencyReceiveConfig
+  _burstDuration: 0.22
+  _flyDuration: 0.55
+  _stagger: 0.045
+  _spread: 90
+  _arc: 140
+  _flyEase: 8
+  _countDuration: 0.7
+  _countEase: 6
+  _minIcons: 1
+  _maxIcons: 20
+  _amountPerIcon: 1
+  _iconSize: 72
+  _punchScale: 1.15
+  _punchDuration: 0.18
+  _poolId: 2
+  _useUnscaledTime: 1

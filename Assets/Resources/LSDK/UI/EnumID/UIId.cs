@@ -9,5 +9,7 @@ namespace LSDK.UISystem
         SampleUI = 2,
         LoadingPanel = 3,
         Loading = 4,
+        Toast = 5,
+        Currency = 6,
     }
 }

@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4a8e2b17d9f4e6a8b0c1d2e3f405162, type: 3}
+  m_Name: CurrencyCatalog
+  m_EditorClassIdentifier: LSDK.Currency::LSDK.Currency.CurrencyCatalog
+  _definitions:
+  - _id: 0
+    _name: Coin
+    _initialAmount: 0
+    _useRegen: 0
+    _maxAmount: 0
+    _regenIntervalSeconds: 1800
+    _allowUnlimited: 0
+    _icon: {fileID: 1599962226752046421, guid: 71840837a6fb34d2698f4e4e01c6da63, type: 3}
+  - _id: 1
+    _name: Heart
+    _initialAmount: 5
+    _useRegen: 0
+    _maxAmount: 5
+    _regenIntervalSeconds: 1800
+    _allowUnlimited: 1
+    _icon: {fileID: 4606908045521496030, guid: 604295644bbd3431bb83d7f65a22dbaa, type: 3}
+  - _id: 2
+    _name: Diamond
+    _initialAmount: 0
+    _useRegen: 0
+    _maxAmount: 0
+    _regenIntervalSeconds: 1800
+    _allowUnlimited: 0
+    _icon: {fileID: 0}

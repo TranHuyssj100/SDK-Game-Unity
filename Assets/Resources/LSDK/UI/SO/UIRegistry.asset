@@ -22,7 +22,13 @@ MonoBehaviour:
   - id: 4
     name: Loading
     prefab: {fileID: 6982475089314678754, guid: 4d9f29fc9034b48b29802bf76644f7c6, type: 3}
-  nextId: 5
+  - id: 5
+    name: Toast
+    prefab: {fileID: 8478852856365776790, guid: 0137a51b03025472488d5e948a203f71, type: 3}
+  - id: 6
+    name: Currency
+    prefab: {fileID: 5289944319949913777, guid: 0364e79e1780d4760bcab337cb9c35ad, type: 3}
+  nextId: 7
   enumName: UIId
   enumNamespace: LSDK.UISystem
   outputFolder: Assets/Resources/LSDK/UI/EnumID

@@ -20,7 +20,14 @@ MonoBehaviour:
     maxSize: 0
     expandable: 1
     collectionCheck: 1
-  nextId: 2
+  - id: 2
+    name: CurrencyFlyIcon
+    prefab: {fileID: 45470477562769379, guid: 2119066b5c424430dab077eecb702caf, type: 3}
+    initialSize: 16
+    maxSize: 0
+    expandable: 1
+    collectionCheck: 1
+  nextId: 3
   enumName: PoolId
   enumNamespace: LSDK.Core.ObjectPools
   outputFolder: Assets/Resources/LSDK/ObjectPools/EnumID

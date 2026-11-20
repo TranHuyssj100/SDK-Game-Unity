@@ -7,5 +7,6 @@ namespace LSDK.Core.ObjectPools
     {
         None = 0,
         Test = 1,
+        CurrencyFlyIcon = 2,
     }
 }
