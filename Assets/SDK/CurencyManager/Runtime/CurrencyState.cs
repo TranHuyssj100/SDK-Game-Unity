@@ -4,13 +4,13 @@ namespace LSDK.Currency
 {
     /// <summary>
     /// Ảnh chụp trạng thái một loại tiền tại một mốc thời gian.
-    /// Đọc một lần qua <see cref="CurrencyManager.TryGetState(CurrencyType, out CurrencyState)"/>
+    /// Đọc một lần qua <see cref="CurrencyManager.TryGetState(int, out CurrencyState)"/>
     /// thay cho gọi nhiều hàm lẻ.
     /// </summary>
     public readonly struct CurrencyState
     {
-        /// <summary>Loại tiền.</summary>
-        public CurrencyType Type { get; }
+        /// <summary>Id loại tiền. Trùng giá trị enum <c>CurrencyType</c>.</summary>
+        public int TypeId { get; }
 
         /// <summary>Số dư.</summary>
         public long Amount { get; }
@@ -38,7 +38,7 @@ namespace LSDK.Currency
 
         /// <summary>Tạo ảnh chụp trạng thái.</summary>
         public CurrencyState(
-            CurrencyType type,
+            int typeId,
             long amount,
             bool usesRegen,
             long max,
@@ -46,12 +46,12 @@ namespace LSDK.Currency
             int regenRemainingSeconds,
             long unlimitedRemainingSeconds)
         {
-            Type = type;
-            Amount = amount;
-            UsesRegen = usesRegen;
-            Max = max;
-            IsFull = isFull;
-            RegenRemainingSeconds = regenRemainingSeconds;
+            TypeId                   = typeId;
+            Amount                   = amount;
+            UsesRegen                = usesRegen;
+            Max                      = max;
+            IsFull                   = isFull;
+            RegenRemainingSeconds    = regenRemainingSeconds;
             UnlimitedRemainingSeconds = unlimitedRemainingSeconds;
         }
     }

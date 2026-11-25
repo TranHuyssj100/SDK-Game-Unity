@@ -62,15 +62,6 @@ namespace LSDK.Currency
             var definitions = catalog.Definitions;
             if (definitions == null) return;
 
-            // Save cũ chưa có _type: gán lại từ _typeId. Chỉ để hiển thị nên không đánh dấu dirty.
-            if (_currencyRecords != null)
-            {
-                for (int i = 0; i < _currencyRecords.Count; i++)
-                {
-                    if (_currencyRecords[i] != null) _currencyRecords[i].SyncType();
-                }
-            }
-
             bool dirty = false;
             for (int i = 0; i < definitions.Count; i++)
             {

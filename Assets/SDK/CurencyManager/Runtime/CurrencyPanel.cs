@@ -1,4 +1,4 @@
-// Assets/SDK/CurencyManager/Runtime/Generate/Code/CurrencyPanel.cs
+// Assets/SDK/CurencyManager/Runtime/CurrencyPanel.cs
 using System.Collections;
 using System.Collections.Generic;
 using LSDK.UISystem;
@@ -11,7 +11,7 @@ namespace LSDK.Currency
     /// Panel chỉ vẽ. Việc cộng đơn vị hồi do <see cref="CurrencyManager"/> làm.
     /// Đồng hồ tick mỗi giây chỉ khi còn ô đang chờ hồi.
     /// </summary>
-    public sealed class CurrencyPanel : UIPanel
+    public  class CurrencyPanel : UIPanel
     {
         readonly List<CurrencyItem> _items = new List<CurrencyItem>();
         Coroutine _tick;

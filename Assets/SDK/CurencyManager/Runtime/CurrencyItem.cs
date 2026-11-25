@@ -1,4 +1,4 @@
-// Assets/SDK/CurencyManager/Runtime/Generate/Code/CurrencyItem.cs
+// Assets/SDK/CurencyManager/Runtime/CurrencyItem.cs
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -7,14 +7,15 @@ using UnityEngine.UI;
 namespace LSDK.Currency
 {
     /// <summary>
-    /// Một ô trên thanh tiền. Hiện số dư của một <see cref="CurrencyType"/>.
+    /// Một ô trên thanh tiền. Hiện số dư của một loại tiền theo id.
     /// Sprite lấy từ <see cref="CurrencyDefinition.Icon"/>. Catalog trống thì giữ sprite đang gán trên Image.
-    /// Khi <see cref="CurrencyManager.Add(CurrencyType, long, Transform)"/> đang đếm, chữ không bị <see cref="Paint"/> ghi đè.
+    /// Khi <see cref="CurrencyManager.Add(int, long, Transform)"/> đang đếm, chữ không bị <see cref="Paint"/> ghi đè.
     /// </summary>
     public sealed class CurrencyItem : MonoBehaviour
     {
+        [Tooltip("Id loại tiền. Trùng giá trị enum CurrencyType.")]
         [SerializeField, FormerlySerializedAs("currencyType")]
-        private CurrencyType _currencyType;
+        private int _currencyTypeId;
 
         [SerializeField] private TMP_Text _amountLabel;
 
@@ -31,8 +32,8 @@ namespace LSDK.Currency
         long _shown;
         Sprite _appliedIcon;
 
-        /// <summary>Loại tiền ô này đang hiện.</summary>
-        public CurrencyType Type => _currencyType;
+        /// <summary>Id loại tiền ô này đang hiện. Trùng giá trị enum <c>CurrencyType</c>.</summary>
+        public int TypeId => _currencyTypeId;
 
         /// <summary>true khi chữ đang đếm từ số cũ tới số mới, chưa theo số dư thật.</summary>
         public bool IsHolding => _holding;
@@ -49,7 +50,7 @@ namespace LSDK.Currency
             get
             {
                 var catalog = CurrencyCatalog.Load();
-                if (catalog != null && catalog.TryGet(_currencyType, out var def) && def != null && def.Icon != null)
+                if (catalog != null && catalog.TryGet(_currencyTypeId, out var def) && def != null && def.Icon != null)
                     return def.Icon;
                 return _icon != null ? _icon.sprite : null;
             }
@@ -66,13 +67,13 @@ namespace LSDK.Currency
         }
 
         /// <summary>Ô đang bật, cùng loại, trên một CurrencyPanel. Không thấy thì false.</summary>
-        public static bool TryFind(CurrencyType type, out CurrencyItem item)
+        public static bool TryFind(int typeId, out CurrencyItem item)
         {
             var found = FindObjectsByType<CurrencyItem>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
             for (int i = 0; i < found.Length; i++)
             {
                 var candidate = found[i];
-                if (candidate == null || !candidate.isActiveAndEnabled || candidate.Type != type) continue;
+                if (candidate == null || !candidate.isActiveAndEnabled || candidate.TypeId != typeId) continue;
                 if (candidate.GetComponentInParent<CurrencyPanel>(true) == null) continue;
                 item = candidate;
                 return true;
@@ -133,7 +134,7 @@ namespace LSDK.Currency
             if (_amountLabel == null) return false;
             if (_wallet == null) _wallet = CurrencyManager.Instance;
             if (_wallet == null) return false;
-            if (!_wallet.TryGetState(_currencyType, out var state)) return false;
+            if (!_wallet.TryGetState(_currencyTypeId, out var state)) return false;
 
             bool waiting = state.UsesRegen && !state.IsFull && !state.IsUnlimited;
             if (_holding) return waiting;
@@ -162,7 +163,7 @@ namespace LSDK.Currency
         {
             if (_amountLabel == null) return;
             if (_wallet == null) _wallet = CurrencyManager.Instance;
-            if (_wallet == null || !_wallet.TryGetState(_currencyType, out var state))
+            if (_wallet == null || !_wallet.TryGetState(_currencyTypeId, out var state))
             {
                 _amountLabel.text = amount.ToString();
                 return;
@@ -172,7 +173,7 @@ namespace LSDK.Currency
             int remaining = state.RegenRemainingSeconds;
             bool counting = state.UsesRegen && !full && !state.IsUnlimited && remaining > 0;
             var view = new CurrencyState(
-                state.Type,
+                state.TypeId,
                 amount,
                 state.UsesRegen,
                 state.Max,
@@ -188,7 +189,7 @@ namespace LSDK.Currency
             if (_icon == null) return;
 
             var catalog = CurrencyCatalog.Load();
-            if (catalog == null || !catalog.TryGet(_currencyType, out var def) || def == null || def.Icon == null)
+            if (catalog == null || !catalog.TryGet(_currencyTypeId, out var def) || def == null || def.Icon == null)
                 return;
             if (_appliedIcon == def.Icon && _icon.sprite == def.Icon) return;
 

@@ -7,43 +7,65 @@ using UnityEngine;
 
 namespace LSDK.Currency.Editor
 {
-    /// <summary>Sinh enum <c>CurrencyType</c> từ id và tên trong catalog.</summary>
+    /// <summary>
+    /// Sinh ba file vào <c>Assets/LSDK/Currency/</c> (project-side, không trong package):
+    /// <list type="bullet">
+    ///   <item><c>CurrencyType.cs</c> – enum với giá trị từ catalog.</item>
+    ///   <item><c>LSDK.Currency.Types.asmdef</c> – assembly tham chiếu package runtime.</item>
+    ///   <item><c>CurrencyManagerExtensions.cs</c> – extension methods bridge enum → int API.</item>
+    /// </list>
+    /// Package runtime dùng <c>int</c> cho mọi API. User code vẫn gọi <c>Add(CurrencyType.Coin, 100)</c>
+    /// qua extension method.
+    /// </summary>
+    [InitializeOnLoad]
     public static class CurrencyEnumGenerator
     {
-        /// <summary>File enum runtime. Nằm trong assembly Currency, suy ra từ vị trí module.</summary>
+        /// <summary>File enum CurrencyType. Luôn ở project-side.</summary>
         public static string EnumPath => CurrencyPaths.EnumPath;
 
-        /// <summary>Ghi enum nếu nội dung đổi.</summary>
+        static CurrencyEnumGenerator()
+        {
+            EditorApplication.delayCall += RemoveLegacyEnum;
+        }
+
+        /// <summary>Sinh enum, asmdef và extensions. Chỉ ghi khi nội dung đổi.</summary>
         public static void Generate(CurrencyCatalog catalog)
         {
             if (catalog == null) return;
 
-            string path = EnumPath;
-            if (!path.StartsWith("Assets/"))
-            {
-                Debug.LogError("[LSDK.Currency] Module đang ở " + path + " (chỉ đọc). Chuyển module vào Assets hoặc embed package để sinh enum.");
-                return;
-            }
+            RemoveLegacyEnum();
 
-            string code = Build(catalog, path);
-            string current = File.Exists(path) ? File.ReadAllText(path) : string.Empty;
-            if (Normalize(current) == Normalize(code)) return;
+            string root = CurrencyPaths.TypesRoot;
+            Directory.CreateDirectory(root);
 
-            string folder = Path.GetDirectoryName(path);
-            if (!string.IsNullOrEmpty(folder))
-                Directory.CreateDirectory(folder);
-            File.WriteAllText(path, code, new UTF8Encoding(false));
-            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
-            Debug.Log("[LSDK.Currency] Đã sinh " + path);
+            // ── 1. CurrencyType.cs ────────────────────────────────────────────────
+            string enumPath = CurrencyPaths.EnumPath;
+            string enumCode = BuildEnum(catalog, enumPath);
+            WriteIfChanged(enumPath, enumCode);
+
+            // ── 2. LSDK.Currency.Types.asmdef ────────────────────────────────────
+            string asmdefPath = CurrencyPaths.TypesAsmdefPath;
+            string asmdefJson = BuildAsmdef();
+            WriteIfChanged(asmdefPath, asmdefJson);
+
+            // ── 3. CurrencyManagerExtensions.cs ──────────────────────────────────
+            string extPath = CurrencyPaths.ExtensionsPath;
+            string extCode = BuildExtensions(catalog, extPath);
+            WriteIfChanged(extPath, extCode);
+
+            AssetDatabase.Refresh();
         }
 
-        /// <summary>Nội dung file enum.</summary>
-        public static string Build(CurrencyCatalog catalog)
+        // ─────────────────────────────────────────────────────────────────────────
+        #region Build helpers
+
+        /// <summary>Nội dung file enum (dùng để preview trong Editor).</summary>
+        public static string BuildEnum(CurrencyCatalog catalog)
         {
-            return Build(catalog, EnumPath);
+            return BuildEnum(catalog, CurrencyPaths.EnumPath);
         }
 
-        static string Build(CurrencyCatalog catalog, string path)
+        static string BuildEnum(CurrencyCatalog catalog, string path)
         {
             var sb = new StringBuilder();
             var used = new HashSet<string>();
@@ -72,9 +94,8 @@ namespace LSDK.Currency.Editor
                         Debug.LogError("[LSDK.Currency] Trùng id " + def.Id + ". Bỏ qua \"" + def.Name + "\".");
                         continue;
                     }
-
                     string name = Unique(Sanitize(def.Name), used);
-                    sb.AppendLine("        /// <summary>" + name + ".</summary>");
+                    sb.AppendLine("        /// <summary>" + name + " (id=" + def.Id + ").</summary>");
                     sb.AppendLine("        " + name + " = " + def.Id + ",");
                     written++;
                 }
@@ -90,6 +111,183 @@ namespace LSDK.Currency.Editor
             sb.AppendLine("}");
             return sb.ToString();
         }
+
+        static string BuildAsmdef()
+        {
+            // CurrencyManager kế thừa SingletonBehaviour<> nên assembly Types
+            // phải thấy LSDK.Core.Base, nếu không extension method báo CS0012.
+            return "{\n" +
+                   "    \"name\": \"LSDK.Currency.Types\",\n" +
+                   "    \"rootNamespace\": \"LSDK.Currency\",\n" +
+                   "    \"references\": [\n" +
+                   "        \"LSDK.Currency\",\n" +
+                   "        \"LSDK.Core.Base\"\n" +
+                   "    ],\n" +
+                   "    \"includePlatforms\": [],\n" +
+                   "    \"excludePlatforms\": [],\n" +
+                   "    \"allowUnsafeCode\": false,\n" +
+                   "    \"overrideReferences\": false,\n" +
+                   "    \"precompiledReferences\": [],\n" +
+                   "    \"autoReferenced\": true,\n" +
+                   "    \"defineConstraints\": [],\n" +
+                   "    \"versionDefines\": [],\n" +
+                   "    \"noEngineReferences\": false\n" +
+                   "}\n";
+        }
+
+        static string BuildExtensions(CurrencyCatalog catalog, string path)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("// " + path);
+            sb.AppendLine("// <auto-generated>");
+            sb.AppendLine("// Generated by LSDK Currency (CurrencyCatalog). Do not edit manually.");
+            sb.AppendLine("// </auto-generated>");
+            sb.AppendLine("using UnityEngine;");
+            sb.AppendLine();
+            sb.AppendLine("namespace LSDK.Currency");
+            sb.AppendLine("{");
+            sb.AppendLine("    /// <summary>");
+            sb.AppendLine("    /// Extension methods để gọi CurrencyManager với CurrencyType thay vì int.");
+            sb.AppendLine("    /// Package runtime dùng int; file này là cầu nối cho user code.");
+            sb.AppendLine("    /// </summary>");
+            sb.AppendLine("    public static class CurrencyManagerExtensions");
+            sb.AppendLine("    {");
+
+            // Read methods
+            sb.AppendLine("        /// <summary>Đọc số dư của loại tiền.</summary>");
+            sb.AppendLine("        public static long GetAmount(this CurrencyManager m, CurrencyType type) => m.GetAmount((int)type);");
+            sb.AppendLine();
+            sb.AppendLine("        /// <summary>Đọc toàn bộ trạng thái, giờ UTC hiện tại.</summary>");
+            sb.AppendLine("        public static bool TryGetState(this CurrencyManager m, CurrencyType type, out CurrencyState state) => m.TryGetState((int)type, out state);");
+            sb.AppendLine();
+            sb.AppendLine("        /// <summary>Đọc toàn bộ trạng thái tại mốc Unix UTC giây.</summary>");
+            sb.AppendLine("        public static bool TryGetState(this CurrencyManager m, CurrencyType type, long now, out CurrencyState state) => m.TryGetState((int)type, now, out state);");
+            sb.AppendLine();
+            sb.AppendLine("        /// <summary>true khi trừ được cost ở thời điểm hiện tại. Không đổi số dư.</summary>");
+            sb.AppendLine("        public static bool CanSpend(this CurrencyManager m, CurrencyType type, long cost) => m.CanSpend((int)type, cost);");
+            sb.AppendLine();
+            sb.AppendLine("        /// <summary>true khi trừ được cost tại mốc đã cho.</summary>");
+            sb.AppendLine("        public static bool CanSpend(this CurrencyManager m, CurrencyType type, long cost, long now) => m.CanSpend((int)type, cost, now);");
+            sb.AppendLine();
+            sb.AppendLine("        /// <summary>true khi loại này có hồi và số dư đã chạm trần.</summary>");
+            sb.AppendLine("        public static bool IsFull(this CurrencyManager m, CurrencyType type) => m.IsFull((int)type);");
+            sb.AppendLine();
+            sb.AppendLine("        /// <summary>true khi catalog bật hồi cho loại này.</summary>");
+            sb.AppendLine("        public static bool UsesRegen(this CurrencyManager m, CurrencyType type) => m.UsesRegen((int)type);");
+            sb.AppendLine();
+            sb.AppendLine("        /// <summary>Trần hồi. 0 nếu không hồi.</summary>");
+            sb.AppendLine("        public static long GetMax(this CurrencyManager m, CurrencyType type) => m.GetMax((int)type);");
+            sb.AppendLine();
+            sb.AppendLine("        /// <summary>Chu kỳ hồi, giây.</summary>");
+            sb.AppendLine("        public static int GetRegenIntervalSeconds(this CurrencyManager m, CurrencyType type) => m.GetRegenIntervalSeconds((int)type);");
+            sb.AppendLine();
+            sb.AppendLine("        /// <summary>Unix UTC giây của đơn vị kế tiếp.</summary>");
+            sb.AppendLine("        public static int GetNextRegenUnix(this CurrencyManager m, CurrencyType type) => m.GetNextRegenUnix((int)type);");
+            sb.AppendLine();
+            sb.AppendLine("        /// <summary>Giây còn lại tới đơn vị kế tiếp.</summary>");
+            sb.AppendLine("        public static int GetRegenRemainingSeconds(this CurrencyManager m, CurrencyType type) => m.GetRegenRemainingSeconds((int)type);");
+            sb.AppendLine();
+            sb.AppendLine("        /// <summary>Giây còn lại tới đơn vị kế tiếp tại mốc Unix UTC giây.</summary>");
+            sb.AppendLine("        public static int GetRegenRemainingSeconds(this CurrencyManager m, CurrencyType type, long now) => m.GetRegenRemainingSeconds((int)type, now);");
+            sb.AppendLine();
+            sb.AppendLine("        /// <summary>true khi unlimited còn hạn.</summary>");
+            sb.AppendLine("        public static bool IsUnlimitedActive(this CurrencyManager m, CurrencyType type) => m.IsUnlimitedActive((int)type);");
+            sb.AppendLine();
+            sb.AppendLine("        /// <summary>true khi unlimited còn hạn tại mốc Unix UTC giây.</summary>");
+            sb.AppendLine("        public static bool IsUnlimitedActive(this CurrencyManager m, CurrencyType type, long now) => m.IsUnlimitedActive((int)type, now);");
+            sb.AppendLine();
+            sb.AppendLine("        /// <summary>Giây unlimited còn lại.</summary>");
+            sb.AppendLine("        public static long GetUnlimitedRemainingSeconds(this CurrencyManager m, CurrencyType type) => m.GetUnlimitedRemainingSeconds((int)type);");
+            sb.AppendLine();
+            sb.AppendLine("        /// <summary>Giây unlimited còn lại tại mốc Unix UTC giây.</summary>");
+            sb.AppendLine("        public static long GetUnlimitedRemainingSeconds(this CurrencyManager m, CurrencyType type, long now) => m.GetUnlimitedRemainingSeconds((int)type, now);");
+            sb.AppendLine();
+
+            // Write methods
+            sb.AppendLine("        /// <summary>Refresh đồng hồ hồi và unlimited, giờ UTC hiện tại.</summary>");
+            sb.AppendLine("        public static void Refresh(this CurrencyManager m, CurrencyType type) => m.Refresh((int)type);");
+            sb.AppendLine();
+            sb.AppendLine("        /// <summary>Refresh tại mốc Unix UTC giây.</summary>");
+            sb.AppendLine("        public static void Refresh(this CurrencyManager m, CurrencyType type, long now) => m.Refresh((int)type, now);");
+            sb.AppendLine();
+            sb.AppendLine("        /// <summary>Ghi số dư theo luật setter, giờ UTC hiện tại.</summary>");
+            sb.AppendLine("        public static void Set(this CurrencyManager m, CurrencyType type, long quantity) => m.Set((int)type, quantity);");
+            sb.AppendLine();
+            sb.AppendLine("        /// <summary>Ghi số dư theo luật setter tại mốc Unix UTC giây.</summary>");
+            sb.AppendLine("        public static void Set(this CurrencyManager m, CurrencyType type, long quantity, long now) => m.Set((int)type, quantity, now);");
+            sb.AppendLine();
+            sb.AppendLine("        /// <summary>Cộng số dư, giờ UTC hiện tại.</summary>");
+            sb.AppendLine("        public static void Add(this CurrencyManager m, CurrencyType type, long amount) => m.Add((int)type, amount);");
+            sb.AppendLine();
+            sb.AppendLine("        /// <summary>Cộng số dư và chơi animation. Icon bay từ origin tới ô cùng loại.</summary>");
+            sb.AppendLine("        public static void Add(this CurrencyManager m, CurrencyType type, long amount, Transform origin) => m.Add((int)type, amount, origin);");
+            sb.AppendLine();
+            sb.AppendLine("        /// <summary>Cộng số dư tại mốc Unix UTC giây.</summary>");
+            sb.AppendLine("        public static void Add(this CurrencyManager m, CurrencyType type, long amount, long now) => m.Add((int)type, amount, now);");
+            sb.AppendLine();
+            sb.AppendLine("        /// <summary>Trừ số dư, giờ UTC hiện tại.</summary>");
+            sb.AppendLine("        public static bool TrySpend(this CurrencyManager m, CurrencyType type, long cost) => m.TrySpend((int)type, cost);");
+            sb.AppendLine();
+            sb.AppendLine("        /// <summary>Trừ số dư tại mốc Unix UTC giây.</summary>");
+            sb.AppendLine("        public static bool TrySpend(this CurrencyManager m, CurrencyType type, long cost, long now) => m.TrySpend((int)type, cost, now);");
+            sb.AppendLine();
+            sb.AppendLine("        /// <summary>Cộng giây unlimited.</summary>");
+            sb.AppendLine("        public static void AddUnlimitedSeconds(this CurrencyManager m, CurrencyType type, long seconds) => m.AddUnlimitedSeconds((int)type, seconds);");
+            sb.AppendLine();
+            sb.AppendLine("        /// <summary>Cộng giây unlimited tại mốc Unix UTC giây.</summary>");
+            sb.AppendLine("        public static void AddUnlimitedSeconds(this CurrencyManager m, CurrencyType type, long seconds, long now) => m.AddUnlimitedSeconds((int)type, seconds, now);");
+
+            sb.AppendLine("    }");
+            sb.AppendLine("}");
+            return sb.ToString();
+        }
+
+        #endregion
+
+        // ─────────────────────────────────────────────────────────────────────────
+        #region IO helpers
+
+        /// <summary>
+        /// Xóa <c>CurrencyType.cs</c> cũ trong package. File đó thuộc assembly <c>LSDK.Currency</c>
+        /// và trùng tên với bản sinh ở <c>Assets/LSDK/Currency</c>.
+        /// </summary>
+        public static void RemoveLegacyEnum()
+        {
+            string path = CurrencyPaths.PackageGenerateRoot + "/Code/CurrencyType.cs";
+            if (!File.Exists(path)) return;
+
+            if (!AssetDatabase.DeleteAsset(path))
+            {
+                File.Delete(path);
+                string meta = path + ".meta";
+                if (File.Exists(meta)) File.Delete(meta);
+                AssetDatabase.Refresh();
+            }
+
+            Debug.Log("[LSDK.Currency] Đã xóa enum cũ trong package: " + path);
+        }
+
+        static void WriteIfChanged(string path, string code)
+        {
+            string current = File.Exists(path) ? File.ReadAllText(path) : string.Empty;
+            if (Normalize(current) == Normalize(code)) return;
+
+            string folder = Path.GetDirectoryName(path);
+            if (!string.IsNullOrEmpty(folder))
+                Directory.CreateDirectory(folder);
+            File.WriteAllText(path, code, new System.Text.UTF8Encoding(false));
+            Debug.Log("[LSDK.Currency] Đã sinh " + path);
+        }
+
+        static string Normalize(string value)
+        {
+            return value.Replace("\r\n", "\n");
+        }
+
+        #endregion
+
+        // ─────────────────────────────────────────────────────────────────────────
+        #region Name helpers
 
         static string Sanitize(string raw)
         {
@@ -115,9 +313,6 @@ namespace LSDK.Currency.Editor
             return result;
         }
 
-        static string Normalize(string value)
-        {
-            return value.Replace("\r\n", "\n");
-        }
+        #endregion
     }
 }

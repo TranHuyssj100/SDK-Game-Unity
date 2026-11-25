@@ -107,3 +107,12 @@ InitTestScene*.unity*
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
 Assets/SDK/com.lsdk.gamedata/.npmrc
+
+# LSDK Currency: prefab và asset do Tools/LSDK/Currency sinh trong package. Không commit.
+Assets/SDK/CurencyManager/Runtime/Generate/
+
+# LSDK Currency (Hướng 2): CurrencyType.cs, asmdef, extensions sinh vào Assets/LSDK/Currency/.
+# Các file này CÓ commit vào Git của project (không phải package).
+# Chúng được tái sinh mỗi khi catalog đổi, nhưng vẫn nên track để CI hoạt động không cần chạy Generate.
+# Nếu muốn bỏ track, uncomment dòng dưới:
+# Assets/LSDK/Currency/

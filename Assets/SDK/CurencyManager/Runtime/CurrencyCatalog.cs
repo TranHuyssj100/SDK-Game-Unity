@@ -43,12 +43,6 @@ namespace LSDK.Currency
             return _cached;
         }
 
-        /// <summary>Tìm định nghĩa theo enum.</summary>
-        public bool TryGet(CurrencyType type, out CurrencyDefinition definition)
-        {
-            return TryGet((int)type, out definition);
-        }
-
         /// <summary>Tìm định nghĩa theo id.</summary>
         public bool TryGet(int id, out CurrencyDefinition definition)
         {

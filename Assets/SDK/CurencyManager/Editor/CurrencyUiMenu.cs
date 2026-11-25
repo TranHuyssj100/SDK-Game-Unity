@@ -54,6 +54,7 @@ namespace LSDK.Currency.Editor
                 panel = Sync(item, catalog);
 
             Register(panel);
+            CurrencyReceiveMenu.Setup();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
@@ -64,7 +65,7 @@ namespace LSDK.Currency.Editor
                 EditorGUIUtility.PingObject(asset);
             }
 
-            Debug.Log("[LSDK.Currency] Đã tạo UI tại " + GenerateRoot + " và đăng ký CurrencyPanel.");
+            Debug.Log("[LSDK.Currency] Đã tạo UI tại " + GenerateRoot + ", đăng ký CurrencyPanel, tạo CurrencyFlyIcon và gắn vào PoolDatabase.");
         }
 
         static CurrencyCatalog FindCatalog()
@@ -184,7 +185,7 @@ namespace LSDK.Currency.Editor
                 if (instance == null) continue;
                 instance.gameObject.name = def.Name + "Item";
                 var so = new SerializedObject(instance);
-                var type = so.FindProperty("_currencyType");
+                var type = so.FindProperty("_currencyTypeId");
                 if (type != null) type.intValue = def.Id;
                 var label = so.FindProperty("_amountLabel");
                 if (label != null && label.objectReferenceValue == null)
@@ -216,7 +217,7 @@ namespace LSDK.Currency.Editor
         static int ReadType(CurrencyItem item)
         {
             var so = new SerializedObject(item);
-            var type = so.FindProperty("_currencyType");
+            var type = so.FindProperty("_currencyTypeId");
             return type != null ? type.intValue : -1;
         }
 
@@ -308,7 +309,7 @@ namespace LSDK.Currency.Editor
                     if (instance == null) continue;
                     instance.gameObject.name = def.Name + "Item";
                     var so = new SerializedObject(instance);
-                    var type = so.FindProperty("_currencyType");
+                    var type = so.FindProperty("_currencyTypeId");
                     if (type != null) type.intValue = def.Id;
                     so.ApplyModifiedPropertiesWithoutUndo();
                 }

@@ -14,8 +14,8 @@ namespace LSDK.Currency
     /// Ví tiền. Loại nào bật hồi trong catalog thì tự cộng theo thời gian,
     /// cùng luật với heart: một mốc, trần, unlimited chặn tiêu.
     /// Vòng hồi ngủ tới mốc đơn vị kế tiếp, không poll cố định. Không có gì đang hồi thì vòng dừng hẳn.
-    /// Gọi <see cref="Refresh(CurrencyType)"/> trước khi đọc số để chặn chơi.
-    /// <see cref="Add(CurrencyType, long, Transform)"/> cộng số dư và chơi animation nhận.
+    /// Gọi <see cref="Refresh(int)"/> trước khi đọc số để chặn chơi.
+    /// <see cref="Add(int, long, UnityEngine.Transform)"/> cộng số dư và chơi animation nhận.
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class CurrencyManager : SingletonBehaviour<CurrencyManager>
@@ -102,15 +102,15 @@ namespace LSDK.Currency
 
         #region Refresh
         /// <summary>Bắt kịp một loại theo giờ UTC hiện tại.</summary>
-        public void Refresh(CurrencyType type)
+        public void Refresh(int typeId)
         {
-            Refresh(type, CurrencyClock.UtcNow());
+            Refresh(typeId, CurrencyClock.UtcNow());
         }
 
         /// <summary>Bắt kịp một loại theo mốc Unix UTC giây.</summary>
-        public void Refresh(CurrencyType type, long now)
+        public void Refresh(int typeId, long now)
         {
-            if (!TryGet(type, out var def, out var record, true)) return;
+            if (!TryGet(typeId, out var def, out var record, true)) return;
             RefreshDefinition(def, record, now);
         }
 
@@ -139,33 +139,33 @@ namespace LSDK.Currency
         {
             bool seeded = Prepare(def, record, out long previous);
             bool refreshed = RegenWallet.Refresh(record, def, now, out _);
-            Commit((CurrencyType)def.Id, previous, record.Amount, seeded || refreshed);
+            Commit(def.Id, previous, record.Amount, seeded || refreshed);
         }
         #endregion
 
         #region Read
         /// <summary>Số dư đã lưu. Không tự bắt kịp thời gian.</summary>
-        public long GetAmount(CurrencyType type)
+        public long GetAmount(int typeId)
         {
-            if (!TryFind(type, out _, out var record)) return 0;
+            if (!TryFind(typeId, out _, out var record)) return 0;
             return record.Amount;
         }
 
         /// <summary>Đọc toàn bộ trạng thái một loại bằng một lần tra cứu, giờ UTC hiện tại. Dùng cho UI.</summary>
-        public bool TryGetState(CurrencyType type, out CurrencyState state)
+        public bool TryGetState(int typeId, out CurrencyState state)
         {
-            return TryGetState(type, CurrencyClock.UtcNow(), out state);
+            return TryGetState(typeId, CurrencyClock.UtcNow(), out state);
         }
 
         /// <summary>Đọc toàn bộ trạng thái một loại tại mốc Unix UTC giây.</summary>
-        public bool TryGetState(CurrencyType type, long now, out CurrencyState state)
+        public bool TryGetState(int typeId, long now, out CurrencyState state)
         {
             state = default;
-            if (!TryFind(type, out var def, out var record)) return false;
+            if (!TryFind(typeId, out var def, out var record)) return false;
 
             bool regen = def.UseRegen;
             state = new CurrencyState(
-                type,
+                typeId,
                 record.Amount,
                 regen,
                 regen ? def.MaxAmount : 0,
@@ -176,115 +176,115 @@ namespace LSDK.Currency
         }
 
         /// <summary>true khi trừ được <paramref name="cost"/> ở thời điểm hiện tại. Không đổi số dư.</summary>
-        public bool CanSpend(CurrencyType type, long cost)
+        public bool CanSpend(int typeId, long cost)
         {
-            return CanSpend(type, cost, CurrencyClock.UtcNow());
+            return CanSpend(typeId, cost, CurrencyClock.UtcNow());
         }
 
         /// <summary>true khi trừ được <paramref name="cost"/> tại mốc đã cho. Không đổi số dư.</summary>
-        public bool CanSpend(CurrencyType type, long cost, long now)
+        public bool CanSpend(int typeId, long cost, long now)
         {
             if (cost <= 0) return false;
-            if (!TryFind(type, out var def, out var record)) return false;
+            if (!TryFind(typeId, out var def, out var record)) return false;
             if (now < 0) now = 0;
             if (def.AllowUnlimited && RegenWallet.UnlimitedRemaining(record, now) > 0) return false;
             return record.Amount >= cost;
         }
 
         /// <summary>true khi loại này có hồi và số dư đã chạm trần.</summary>
-        public bool IsFull(CurrencyType type)
+        public bool IsFull(int typeId)
         {
-            if (!TryFind(type, out var def, out var record) || !def.UseRegen) return false;
+            if (!TryFind(typeId, out var def, out var record) || !def.UseRegen) return false;
             return record.Amount >= def.MaxAmount;
         }
 
         /// <summary>true khi catalog bật hồi cho loại này.</summary>
-        public bool UsesRegen(CurrencyType type)
+        public bool UsesRegen(int typeId)
         {
-            if (!TryDef(type, out var def)) return false;
+            if (!TryDef(typeId, out var def)) return false;
             return def.UseRegen;
         }
 
         /// <summary>Trần hồi. 0 nếu loại này không hồi hoặc chưa có định nghĩa.</summary>
-        public long GetMax(CurrencyType type)
+        public long GetMax(int typeId)
         {
-            if (!TryDef(type, out var def) || !def.UseRegen) return 0;
+            if (!TryDef(typeId, out var def) || !def.UseRegen) return 0;
             return def.MaxAmount;
         }
 
         /// <summary>Chu kỳ hồi, giây. 0 nếu loại này không hồi.</summary>
-        public int GetRegenIntervalSeconds(CurrencyType type)
+        public int GetRegenIntervalSeconds(int typeId)
         {
-            if (!TryDef(type, out var def) || !def.UseRegen) return 0;
+            if (!TryDef(typeId, out var def) || !def.UseRegen) return 0;
             return def.RegenIntervalSeconds;
         }
 
         /// <summary>Unix UTC giây của đơn vị kế tiếp. 0 nếu không có lịch.</summary>
-        public int GetNextRegenUnix(CurrencyType type)
+        public int GetNextRegenUnix(int typeId)
         {
-            if (!TryFind(type, out _, out var record)) return 0;
+            if (!TryFind(typeId, out _, out var record)) return 0;
             return record.NextRegenUnix;
         }
 
         /// <summary>Giây còn lại tới đơn vị kế tiếp. 0 khi đầy, chưa có lịch, hoặc đã tới mốc.</summary>
-        public int GetRegenRemainingSeconds(CurrencyType type)
+        public int GetRegenRemainingSeconds(int typeId)
         {
-            return GetRegenRemainingSeconds(type, CurrencyClock.UtcNow());
+            return GetRegenRemainingSeconds(typeId, CurrencyClock.UtcNow());
         }
 
         /// <summary>Giây còn lại tới đơn vị kế tiếp tại mốc Unix UTC giây.</summary>
-        public int GetRegenRemainingSeconds(CurrencyType type, long now)
+        public int GetRegenRemainingSeconds(int typeId, long now)
         {
-            if (!TryFind(type, out var def, out var record)) return 0;
+            if (!TryFind(typeId, out var def, out var record)) return 0;
             return RegenWallet.RegenRemaining(record, def, now);
         }
 
         /// <summary>true khi unlimited còn hạn.</summary>
-        public bool IsUnlimitedActive(CurrencyType type)
+        public bool IsUnlimitedActive(int typeId)
         {
-            return IsUnlimitedActive(type, CurrencyClock.UtcNow());
+            return IsUnlimitedActive(typeId, CurrencyClock.UtcNow());
         }
 
         /// <summary>true khi unlimited còn hạn tại mốc Unix UTC giây.</summary>
-        public bool IsUnlimitedActive(CurrencyType type, long now)
+        public bool IsUnlimitedActive(int typeId, long now)
         {
-            return GetUnlimitedRemainingSeconds(type, now) > 0;
+            return GetUnlimitedRemainingSeconds(typeId, now) > 0;
         }
 
         /// <summary>Giây unlimited còn lại. 0 khi hết hạn hoặc loại này không bật unlimited.</summary>
-        public long GetUnlimitedRemainingSeconds(CurrencyType type)
+        public long GetUnlimitedRemainingSeconds(int typeId)
         {
-            return GetUnlimitedRemainingSeconds(type, CurrencyClock.UtcNow());
+            return GetUnlimitedRemainingSeconds(typeId, CurrencyClock.UtcNow());
         }
 
         /// <summary>Giây unlimited còn lại tại mốc Unix UTC giây.</summary>
-        public long GetUnlimitedRemainingSeconds(CurrencyType type, long now)
+        public long GetUnlimitedRemainingSeconds(int typeId, long now)
         {
-            if (!TryFind(type, out var def, out var record) || !def.AllowUnlimited) return 0;
+            if (!TryFind(typeId, out var def, out var record) || !def.AllowUnlimited) return 0;
             return RegenWallet.UnlimitedRemaining(record, now);
         }
         #endregion
 
         #region Write
         /// <summary>Ghi số dư theo luật setter, giờ UTC hiện tại.</summary>
-        public void Set(CurrencyType type, long quantity)
+        public void Set(int typeId, long quantity)
         {
-            Set(type, quantity, CurrencyClock.UtcNow());
+            Set(typeId, quantity, CurrencyClock.UtcNow());
         }
 
         /// <summary>Ghi số dư theo luật setter tại mốc Unix UTC giây.</summary>
-        public void Set(CurrencyType type, long quantity, long now)
+        public void Set(int typeId, long quantity, long now)
         {
-            if (!TryGet(type, out var def, out var record, true)) return;
+            if (!TryGet(typeId, out var def, out var record, true)) return;
             bool seeded = Prepare(def, record, out long previous);
             bool applied = RegenWallet.ApplyAmount(record, def, quantity, now, out _);
-            Commit(type, previous, record.Amount, seeded || applied);
+            Commit(typeId, previous, record.Amount, seeded || applied);
         }
 
-        /// <summary>Cộng số dư. Số không dương bị bỏ qua. Trừ bằng <see cref="TrySpend(CurrencyType, long)"/>.</summary>
-        public void Add(CurrencyType type, long amount)
+        /// <summary>Cộng số dư. Số không dương bị bỏ qua. Trừ bằng <see cref="TrySpend(int, long)"/>.</summary>
+        public void Add(int typeId, long amount)
         {
-            Add(type, amount, CurrencyClock.UtcNow());
+            Add(typeId, amount, CurrencyClock.UtcNow());
         }
 
         /// <summary>
@@ -292,57 +292,57 @@ namespace LSDK.Currency
         /// Null thì bay từ giữa màn hình. Chữ bắt đầu đếm khi icon đầu tiên chạm ô.
         /// Không thấy ô đang mở, hoặc không spawn được icon, thì cộng và hiện số mới ngay.
         /// </summary>
-        public void Add(CurrencyType type, long amount, Transform origin)
+        public void Add(int typeId, long amount, Transform origin)
         {
             if (amount <= 0) return;
             var config = CurrencyReceiveConfig.Load();
-            if (!CurrencyItem.TryFind(type, out var item))
+            if (!CurrencyItem.TryFind(typeId, out var item))
             {
-                CurrencyLog.Warning("Không thấy CurrencyItem đang bật cho " + type + ". Đã cộng số dư, không chơi animation. Hãy mở CurrencyPanel.");
-                Add(type, amount);
+                CurrencyLog.Warning("Không thấy CurrencyItem đang bật cho " + typeId + ". Đã cộng số dư, không chơi animation. Hãy mở CurrencyPanel.");
+                Add(typeId, amount);
                 return;
             }
 
-            long from = item.IsHolding ? item.ShownAmount : GetAmount(type);
+            long from = item.IsHolding ? item.ShownAmount : GetAmount(typeId);
             item.BeginHold(from);
-            Add(type, amount);
-            long to = GetAmount(type);
+            Add(typeId, amount);
+            long to = GetAmount(typeId);
             if (to <= from)
             {
                 item.EndHold();
                 return;
             }
 
-            QueueCount(item, type, from, to);
-            if (Spawn(item, type, to - from, origin, config) <= 0)
-                StartCount(item, type, from, to, config);
+            QueueCount(item, typeId, from, to);
+            if (Spawn(item, typeId, to - from, origin, config) <= 0)
+                StartCount(item, typeId, from, to, config);
         }
 
         /// <summary>Cộng số dư tại mốc Unix UTC giây.</summary>
-        public void Add(CurrencyType type, long amount, long now)
+        public void Add(int typeId, long amount, long now)
         {
             if (amount <= 0) return;
-            if (!TryGet(type, out var def, out var record, true)) return;
+            if (!TryGet(typeId, out var def, out var record, true)) return;
             bool seeded = Prepare(def, record, out long previous);
             long current = record.Amount;
             long next = current > long.MaxValue - amount ? long.MaxValue : current + amount;
             bool applied = RegenWallet.ApplyAmount(record, def, next, now, out _);
-            Commit(type, previous, record.Amount, seeded || applied);
+            Commit(typeId, previous, record.Amount, seeded || applied);
         }
 
         /// <summary>
         /// Trừ số dư. Đang unlimited, không đủ, hoặc không tìm thấy loại thì giữ nguyên và trả false.
         /// </summary>
-        public bool TrySpend(CurrencyType type, long cost)
+        public bool TrySpend(int typeId, long cost)
         {
-            return TrySpend(type, cost, CurrencyClock.UtcNow());
+            return TrySpend(typeId, cost, CurrencyClock.UtcNow());
         }
 
         /// <summary>Trừ số dư tại mốc Unix UTC giây.</summary>
-        public bool TrySpend(CurrencyType type, long cost, long now)
+        public bool TrySpend(int typeId, long cost, long now)
         {
             if (cost <= 0) return false;
-            if (!TryGet(type, out var def, out var record, true)) return false;
+            if (!TryGet(typeId, out var def, out var record, true)) return false;
             bool seeded = Prepare(def, record, out long previous);
             if (now < 0) now = 0;
 
@@ -352,30 +352,30 @@ namespace LSDK.Currency
             if (!blocked && record.Amount >= cost)
                 applied = RegenWallet.ApplyAmount(record, def, record.Amount - cost, now, out spent);
 
-            Commit(type, previous, record.Amount, seeded || applied);
+            Commit(typeId, previous, record.Amount, seeded || applied);
             return spent;
         }
 
         /// <summary>Cộng giây unlimited. Tham số là giây, cộng dồn từ mốc còn hạn hoặc từ bây giờ.</summary>
-        public void AddUnlimitedSeconds(CurrencyType type, long seconds)
+        public void AddUnlimitedSeconds(int typeId, long seconds)
         {
-            AddUnlimitedSeconds(type, seconds, CurrencyClock.UtcNow());
+            AddUnlimitedSeconds(typeId, seconds, CurrencyClock.UtcNow());
         }
 
         /// <summary>Cộng giây unlimited tại mốc Unix UTC giây.</summary>
-        public void AddUnlimitedSeconds(CurrencyType type, long seconds, long now)
+        public void AddUnlimitedSeconds(int typeId, long seconds, long now)
         {
             if (seconds <= 0) return;
-            if (!TryGet(type, out var def, out var record, true)) return;
+            if (!TryGet(typeId, out var def, out var record, true)) return;
             if (!def.AllowUnlimited)
             {
-                CurrencyLog.Warning(type + " không bật unlimited trong catalog.");
+                CurrencyLog.Warning(typeId + " không bật unlimited trong catalog.");
                 return;
             }
 
             bool seeded = Prepare(def, record, out long previous);
             bool applied = RegenWallet.AddUnlimited(record, def, seconds, now, out _);
-            Commit(type, previous, record.Amount, seeded || applied);
+            Commit(typeId, previous, record.Amount, seeded || applied);
         }
 
         // Seed im lặng, trả số dư trước khi seed để Commit gộp mọi thay đổi thành một lần Save.
@@ -385,40 +385,40 @@ namespace LSDK.Currency
             return RegenWallet.Seed(record, def);
         }
 
-        void Commit(CurrencyType type, long previous, long current, bool changed)
+        void Commit(int typeId, long previous, long current, bool changed)
         {
             if (!changed || _data == null) return;
             _data.Save();
             if (previous == current) return;
-            AmountChanged?.Invoke(new CurrencyAmountChanged(type, previous, current));
+            AmountChanged?.Invoke(new CurrencyAmountChanged(typeId, previous, current));
         }
         #endregion
 
         #region Lookup
-        bool TryDef(CurrencyType type, out CurrencyDefinition def)
+        bool TryDef(int typeId, out CurrencyDefinition def)
         {
             def = null;
             if (_catalog == null) _catalog = CurrencyCatalog.Load();
             if (_catalog == null) return false;
-            return _catalog.TryGet(type, out def);
+            return _catalog.TryGet(typeId, out def);
         }
 
-        bool TryFind(CurrencyType type, out CurrencyDefinition def, out CurrencyRecord record)
+        bool TryFind(int typeId, out CurrencyDefinition def, out CurrencyRecord record)
         {
             record = null;
-            if (!TryDef(type, out def)) return false;
+            if (!TryDef(typeId, out def)) return false;
             if (!EnsureLoaded(false)) return false;
             return _data.TryGet(def.Id, out record);
         }
 
-        bool TryGet(CurrencyType type, out CurrencyDefinition def, out CurrencyRecord record, bool log)
+        bool TryGet(int typeId, out CurrencyDefinition def, out CurrencyRecord record, bool log)
         {
             def = null;
             record = null;
             if (!EnsureLoaded(log)) return false;
-            if (!_catalog.TryGet(type, out def))
+            if (!_catalog.TryGet(typeId, out def))
             {
-                if (log) CurrencyLog.Error("Không có định nghĩa cho " + type + " trong CurrencyCatalog.");
+                if (log) CurrencyLog.Error("Không có định nghĩa cho " + typeId + " trong CurrencyCatalog.");
                 return false;
             }
 
@@ -584,10 +584,10 @@ namespace LSDK.Currency
         }
 
         // Giữ số cũ. Chưa chạy chữ. Icon đầu tiên tới nơi mới gọi StartCount.
-        void QueueCount(CurrencyItem item, CurrencyType type, long from, long to)
+        void QueueCount(CurrencyItem item, int typeId, long from, long to)
         {
             if (_counts == null) _counts = new Dictionary<int, CountRun>(4);
-            int key = (int)type;
+            int key = typeId;
             if (_counts.TryGetValue(key, out var running) && running.Tween != null && running.Tween.IsActive())
                 running.Tween.Kill(false);
             _counts[key] = new CountRun { Item = item, From = from, To = to };
@@ -596,15 +596,15 @@ namespace LSDK.Currency
         void TryBeginCount(CurrencyItem item)
         {
             if (item == null || _counts == null) return;
-            int key = (int)item.Type;
+            int key = item.TypeId;
             if (!_counts.TryGetValue(key, out var run) || run.Tween != null) return;
-            StartCount(item, item.Type, run.From, run.To, CurrencyReceiveConfig.Load());
+            StartCount(item, item.TypeId, run.From, run.To, CurrencyReceiveConfig.Load());
         }
 
-        void StartCount(CurrencyItem item, CurrencyType type, long from, long to, CurrencyReceiveConfig config)
+        void StartCount(CurrencyItem item, int typeId, long from, long to, CurrencyReceiveConfig config)
         {
             if (_counts == null) _counts = new Dictionary<int, CountRun>(4);
-            int key = (int)type;
+            int key = typeId;
 
             if (config.CountDuration <= 0f)
             {
@@ -635,13 +635,13 @@ namespace LSDK.Currency
             if (item != null) item.EndHold();
         }
 
-        int Spawn(CurrencyItem item, CurrencyType type, long gained, Transform origin, CurrencyReceiveConfig config)
+        int Spawn(CurrencyItem item, int typeId, long gained, Transform origin, CurrencyReceiveConfig config)
         {
             var canvas = item.GetComponentInParent<Canvas>();
             var layer = canvas != null ? canvas.transform as RectTransform : null;
             if (layer == null)
             {
-                CurrencyLog.Warning(type + " không nằm trên Canvas. Không spawn icon.");
+                CurrencyLog.Warning(typeId + " không nằm trên Canvas. Không spawn icon.");
                 return 0;
             }
 
@@ -671,10 +671,10 @@ namespace LSDK.Currency
             var target = item.FlyTarget;
             Camera targetCamera = CurrencyFlyIcon.CameraOf(target);
             Sprite sprite = null;
-            if (TryDef(type, out var def) && def != null) sprite = def.Icon;
+            if (TryDef(typeId, out var def) && def != null) sprite = def.Icon;
             if (sprite == null) sprite = item.DisplayedSprite;
             if (sprite == null)
-                WarnOnce(ref _warnedSprite, type + " chưa có sprite. Gán Icon trong CurrencyCatalog, hoặc gán sprite trên Image của CurrencyItem.");
+                WarnOnce(ref _warnedSprite, typeId + " chưa có sprite. Gán Icon trong CurrencyCatalog, hoặc gán sprite trên Image của CurrencyItem.");
 
             int count = config.IconCount(gained);
             if (_flying == null) _flying = new List<CurrencyFlyIcon>(count);

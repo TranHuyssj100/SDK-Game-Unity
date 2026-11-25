@@ -11,9 +11,6 @@ namespace LSDK.Currency
         [Tooltip("Id trong catalog. Đây là nguồn thật của loại tiền.")]
         [SerializeField] private int _typeId;
 
-        [Tooltip("Chỉ để xem trong inspector. Luôn được ghi đè từ Type Id khi load.")]
-        [SerializeField] private CurrencyType _type;
-
         [SerializeField] private long _amount;
         [SerializeField] private bool _seeded;
         [SerializeField] private int _nextRegenUnix;
@@ -29,14 +26,10 @@ namespace LSDK.Currency
         internal CurrencyRecord(int typeId)
         {
             _typeId = typeId;
-            _type = (CurrencyType)typeId;
         }
 
         /// <summary>Id trong catalog.</summary>
         public int TypeId => _typeId;
-
-        /// <summary>Loại tiền theo enum. Suy ra từ <see cref="TypeId"/>.</summary>
-        public CurrencyType Type => (CurrencyType)_typeId;
 
         /// <summary>Số dư hiện tại. Sàn 0.</summary>
         public long Amount => _amount;
@@ -67,12 +60,6 @@ namespace LSDK.Currency
             if (_isUnlimited == value) return false;
             _isUnlimited = value;
             return true;
-        }
-
-        /// <summary>Gán lại <c>_type</c> từ <c>_typeId</c>. Save cũ chưa có <c>_type</c> nên cần bước này.</summary>
-        internal void SyncType()
-        {
-            _type = (CurrencyType)_typeId;
         }
     }
 }

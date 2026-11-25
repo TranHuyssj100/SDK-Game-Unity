@@ -18,7 +18,9 @@ Thêm loại mới: sửa catalog, giữ id cũ, rồi `Tools/LSDK/Currency/Gene
 
 `Tools/LSDK/Currency/Create Catalog` tạo asset nếu chưa có và sinh lại enum.
 
-`Tools/LSDK/Currency/Create Currency UI` sinh `CurrencyType`, tạo `CurrencyItem` và `CurrencyPanel` trong `Runtime/Generate` nếu chưa có, thêm ô còn thiếu theo catalog, rồi đăng ký `CurrencyPanel` vào mọi `UIRegistry`. Thanh tiền nằm layer Overlay.
+`Tools/LSDK/Currency/Create Currency UI` sinh `CurrencyType`, tạo `CurrencyItem` và `CurrencyPanel` nếu chưa có, thêm ô còn thiếu theo catalog, đăng ký `CurrencyPanel` vào mọi `UIRegistry`, rồi tạo `CurrencyFlyIcon` và gắn prefab đó vào `PoolDatabase`. Thanh tiền nằm layer Overlay.
+
+`CurrencyItem` và `CurrencyPanel` nằm trong `Runtime`. `Runtime/Generate` chỉ chứa phần tool sinh ra (`CurrencyType`, prefab) và không được commit. Package nằm trong `Assets` hoặc được embed thì prefab ghi vào `Runtime/Generate`. Package cài từ git (thư mục PackageCache, chỉ đọc) thì prefab ghi vào `Assets/LSDK/Currency`. `CurrencyType` nằm trong assembly package, nên muốn đổi tên enum thì embed package. Sau khi clone, chạy `Generate CurrencyType` và `Create Currency UI` một lần để có enum và prefab.
 
 ```csharp
 CurrencyPanel.Open();

@@ -27,6 +27,19 @@ namespace LSDK.Currency.Editor
                 return;
             }
 
+            var config = Setup();
+            if (config != null)
+            {
+                Selection.activeObject = config;
+                EditorGUIUtility.PingObject(config);
+            }
+        }
+
+        /// <summary>
+        /// Tạo prefab CurrencyFlyIcon nếu chưa có, gắn vào mọi PoolDatabase, và ghi pool id vào config.
+        /// </summary>
+        public static CurrencyReceiveConfig Setup()
+        {
             EnsureFolder(Path.GetDirectoryName(FlyPath).Replace('\\', '/'));
             EnsureFolder(Path.GetDirectoryName(ConfigPath).Replace('\\', '/'));
 
@@ -38,14 +51,8 @@ namespace LSDK.Currency.Editor
             var config = LoadOrCreateConfig(poolId);
 
             CurrencyReceiveConfig.ClearCache();
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
-
-            Selection.activeObject = config != null ? config : prefab;
-            if (Selection.activeObject != null)
-                EditorGUIUtility.PingObject(Selection.activeObject);
-
             Debug.Log("[LSDK.Currency] Receive setup: config " + ConfigPath + ", prefab " + FlyPath + ", pool #" + poolId + ".");
+            return config;
         }
 
         static GameObject LoadOrCreateFly()
